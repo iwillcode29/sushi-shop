@@ -56,14 +56,18 @@ sushi/
     stage.tsx             'use client' — owns lighting state; <Canvas> + overlay
     sushi-model.tsx       useGLTF load, applies the active material mode
     scene-env.tsx         Environment, lights, ContactShadows, floor plane
+    stage-loader.tsx      'use client' dynamic import of Stage with ssr: false
     loader.tsx            progress overlay driven by useProgress
     hero-overlay.tsx      DOM title, subline, rotate hint, lighting toggle
-    fallback-poster.tsx   static image shown when WebGL is unavailable
+    fallback-poster.tsx   static panel shown when WebGL or the asset fails
+    model-error-boundary.tsx  catches asset failures, renders the panel
   lib/
     materials.ts          unlit ↔ MeshStandardMaterial conversion
+    scene-fit.ts          centre on X/Z, seat the base at y = 0
+    webgl.ts              WebGL context availability probe
+    use-prefers-reduced-motion.ts
   public/
     models/sushis.glb
-    poster.png            single pre-rendered still for the fallback
 ```
 
 **Unit boundaries.** `stage.tsx` is the client boundary and the only stateful
@@ -78,7 +82,7 @@ material — so it is unit-testable without a renderer. `hero-overlay` is
 plain DOM and knows nothing about Three.js; it receives the lighting mode and
 a setter as props.
 
-**Stack:** Next.js 15 (App Router), React, `@react-three/fiber`,
+**Stack:** Next.js 16 (App Router), React 19, `@react-three/fiber`,
 `@react-three/drei`, TypeScript, Tailwind CSS.
 
 ## 3D scene
@@ -114,8 +118,11 @@ distortion low and reads as a product shot rather than a game view.
 - clamped `minDistance` / `maxDistance`
 - auto-rotate suspends on user interaction and resumes after 3 s idle
 
-**Framing.** `<Bounds fit clip observe>` fits the model to the frame, so no
-scale or position constants are hardcoded against this particular asset.
+**Framing.** `groundAndCenter` (in `lib/scene-fit.ts`) seats the model's base
+on the floor plane and centres it on X/Z; `<Bounds fit clip observe>` then
+fits the camera to it. No scale or position constants are hardcoded against
+this particular asset. The maths is done explicitly rather than through
+drei's `<Center>` because a pure function is directly unit-testable.
 
 **Post-processing:** none. Bloom and depth-of-field buy little against unlit
 materials and cost real frame time on mobile. Default tone mapping plus
@@ -170,7 +177,7 @@ needed.
 
 | Failure | Behavior |
 | --- | --- |
-| No WebGL context | Render `fallback-poster` (static PNG) with a short explanatory line |
+| No WebGL context | Render `fallback-poster` with a short explanatory line |
 | GLB fetch or parse fails | Error boundary around the Suspense boundary → same poster plus a retry button |
 | Slow GLB load | `loader.tsx` progress overlay from `useProgress`; the page's text content is already visible behind it |
 | Material conversion throws | Fall back to `unlit` and keep the scene alive; never blank the canvas |
@@ -200,5 +207,7 @@ form, post-processing effects, and mesh compression.
 ## Open items
 
 - Confirm the Sketchfab license and exact attribution wording before deploy.
-- `poster.png` must be produced once from the finished scene; until then the
-  fallback shows the text-only variant.
+- ~~`poster.png`~~ dropped. Producing a still from the finished scene is a
+  circular dependency and another asset to maintain; the fallback is a styled
+  static panel carrying the same copy. The guarantee that no failure path
+  leaves an empty viewport is unchanged.
