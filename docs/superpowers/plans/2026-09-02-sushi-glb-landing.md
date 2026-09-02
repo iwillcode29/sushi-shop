@@ -134,8 +134,16 @@ Expected: `meshes: 2 materials: [ 'sushiSet', 'sushis' ]` and `extensions: [ 'KH
 
 - [ ] **Step 7: Extend .gitignore**
 
+The rsync in Step 2 replaced `.gitignore` wholesale with the scaffold's
+version, which dropped the `.superpowers/` entry this branch already had.
+Restore it alongside the testing entries, or Step 9's `git add -A` will
+commit the scratch directory.
+
 ```bash
 cat >> .gitignore <<'EOF'
+
+# superpowers scratch
+.superpowers/
 
 # testing
 /coverage
@@ -144,7 +152,10 @@ cat >> .gitignore <<'EOF'
 /.playwright
 EOF
 sort -u .gitignore -o .gitignore
+git check-ignore -q .superpowers && echo "scratch ignored: ok"
 ```
+
+Expected: `scratch ignored: ok`.
 
 - [ ] **Step 8: Verify type-check and build pass**
 
@@ -1588,6 +1599,14 @@ vi.mock('@/components/sushi-model', () => ({
   ),
 }))
 
+// Canvas is a plain div here, so real R3F intrinsics (<ambientLight>,
+// <planeGeometry args={...}>) would reach React DOM and warn. SceneEnv is
+// already covered against a real three scene graph in its own test.
+vi.mock('@/components/scene-env', () => ({
+  FLOOR_Y: -0.002,
+  SceneEnv: ({ mode }: { mode: string }) => <div data-testid="scene-env" data-mode={mode} />,
+}))
+
 vi.mock('@/lib/use-prefers-reduced-motion', () => ({
   usePrefersReducedMotion: () => reducedMotion,
 }))
@@ -2256,7 +2275,10 @@ test.describe('sushi landing page', () => {
   test('serves the GLB itself', async ({ page }) => {
     const response = await page.request.get('/models/sushis.glb')
     expect(response.status()).toBe(200)
-    expect(Number(response.headers()['content-length'])).toBeGreaterThan(1_000_000)
+    // Measured from the body rather than content-length: that header is
+    // absent under chunked transfer, which would fail the test for the
+    // wrong reason.
+    expect((await response.body()).byteLength).toBeGreaterThan(1_000_000)
   })
 })
 ```
