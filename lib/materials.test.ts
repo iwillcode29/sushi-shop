@@ -45,9 +45,21 @@ describe('toLit', () => {
 
   it('does not mutate the source material', () => {
     const source = makeUnlit()
-    toLit(source)
+    const originalName = source.name
+    const originalColorHex = source.color.getHex()
+    const originalTransparent = source.transparent
+    const originalOpacity = source.opacity
+    const originalAlphaTest = source.alphaTest
+
+    const lit = toLit(source)
+
+    expect(lit).not.toBe(source)
     expect(source).toBeInstanceOf(MeshBasicMaterial)
-    expect(source.name).toBe('sushiSet')
+    expect(source.name).toBe(originalName)
+    expect(source.color.getHex()).toBe(originalColorHex)
+    expect(source.transparent).toBe(originalTransparent)
+    expect(source.opacity).toBe(originalOpacity)
+    expect(source.alphaTest).toBe(originalAlphaTest)
   })
 })
 
