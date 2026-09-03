@@ -114,7 +114,14 @@ export function Stage() {
       <ModelErrorBoundary>
         <Canvas
           frameloop={frameloop}
-          shadows
+          // "percentage" maps to THREE.PCFShadowMap. The bare boolean
+          // `shadows` used to ask fiber for THREE.PCFSoftShadowMap, which
+          // three.js has deprecated and silently substitutes with
+          // PCFShadowMap anyway (see WebGLShadowMap's own source) — so this
+          // is not a rendering change, just asking directly for what we
+          // were already being given, and it removes the deprecation
+          // warning that was otherwise noise in every test/console run.
+          shadows="percentage"
           dpr={degraded ? 1 : [1, 2]}
           camera={{ fov: 35, position: [3.4, 2.4, 3.4], near: 0.1, far: 100 }}
           gl={{ antialias: true }}
