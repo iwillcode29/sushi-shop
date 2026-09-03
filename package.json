@@ -19,6 +19,11 @@
     "react-dom": "19.2.8",
     "three": "0.185.1"
   },
+  "overrides": {
+    "stats-gl": {
+      "three": "0.185.1"
+    }
+  },
   "devDependencies": {
     "@react-three/test-renderer": "9.1.1",
     "@tailwindcss/postcss": "^4",
