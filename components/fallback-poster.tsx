@@ -5,7 +5,7 @@ export type FallbackReason = 'no-webgl' | 'load-failed'
 const COPY: Record<FallbackReason, { heading: string; body: string }> = {
   'no-webgl': {
     heading: 'Handcrafted in WebGL',
-    body: 'This browser cannot open a 3D graphics context, so the sushi cannot be rendered here. Everything below still works.',
+    body: 'This browser cannot open a WebGL context, so the sushi cannot be rendered here. Everything below still works.',
   },
   'load-failed': {
     heading: 'Handcrafted in WebGL',

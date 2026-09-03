@@ -6,7 +6,7 @@ import { FallbackPoster } from '@/components/fallback-poster'
 describe('FallbackPoster', () => {
   it('explains a missing WebGL context', () => {
     render(<FallbackPoster reason="no-webgl" />)
-    expect(screen.getByText(/WebGL/i)).toBeInTheDocument()
+    expect(screen.getByText(/cannot open a WebGL context/i)).toBeInTheDocument()
   })
 
   it('offers no retry when the browser simply cannot render', () => {
