@@ -13,6 +13,16 @@ export function HeroOverlay({ mode, onToggleMode }: HeroOverlayProps) {
       data-testid="hero-overlay"
       className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-6 sm:p-10"
     >
+      {/*
+        app/page.tsx's headline block sits in a separate absolute inset-0
+        layer, painted above this one, with its own top padding
+        (pt-16 sm:pt-24) sized to clear this header row's rendered height —
+        that relationship is not encoded anywhere the compiler or test
+        suite would catch a violation of. Changing this row's padding or
+        text size without checking app/page.tsx's comment on its headline
+        container can silently reopen the collision two of this fix
+        cycle's commits existed to close.
+      */}
       <header className="flex items-start justify-between text-xs tracking-[0.25em] uppercase">
         <span className="font-semibold">Sushi</span>
         <a

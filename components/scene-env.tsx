@@ -33,13 +33,20 @@ export function SceneEnv({ mode }: SceneEnvProps) {
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0005}
         // three's default directional-light shadow camera is an
-        // orthographic box just ±5 units on a side, well short of the
-        // floor's reach (see planeGeometry below). Widened to keep the
-        // whole floor within it, with margin, so lit-mode shadow casting
-        // stays correct everywhere the floor is visible. (This was ruled
-        // out as the cause of the seam described below — castShadow={false}
-        // reproduced the seam identically — but it is a real, independent
-        // gap worth closing while touching this light.)
+        // orthographic box just ±5 units on a side — short even of what's
+        // actually visible, let alone the literal 300x300 floor (see
+        // planeGeometry below). It doesn't need to cover the floor's full
+        // extent, only the region that's ever visibly distinct from the
+        // page background: past ~30 units of eye-space distance the floor
+        // is already fog-converged to --color-shell (see the <fog> below)
+        // and indistinguishable from empty space, so nothing out there
+        // needs correct shadow-testing regardless of what the shadow map
+        // contains. ±101 comfortably covers that visible region at every
+        // camera position the orbit allows — it is sized to the fog
+        // convergence distance, not to the floor's own size. (This was
+        // ruled out as the cause of the seam described below —
+        // castShadow={false} reproduced the seam identically — but it is a
+        // real, independent gap worth closing while touching this light.)
         shadow-camera-left={-101}
         shadow-camera-right={101}
         shadow-camera-top={101}

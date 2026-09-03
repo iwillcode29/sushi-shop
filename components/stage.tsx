@@ -138,8 +138,14 @@ export function Stage() {
               the model alone (Bounds' only children), which culled the far
               reach of the floor in SceneEnv — the floor sits outside
               <Bounds> since it isn't part of what should be auto-framed.
-              Canvas's own near/far (0.1 / 100) already comfortably contains
-              the floor at every orbit distance.
+              Canvas's own far (100) does not literally contain the floor
+              (300x300, half-extent 150 — see scene-env.tsx) at every
+              camera angle; what it needs to contain, and does, is the
+              floor's fog-convergence distance (~30 units of eye-space
+              depth — see the <fog> in scene-env.tsx). Past that the floor
+              is already blended into the page background and visually
+              indistinguishable from empty space, so clipping it there,
+              rather than at its literal edge, produces no visible seam.
 
               margin was tuned empirically, not guessed: 1.15 (original)
               let the model's silhouette fill ~87% of the frame's shorter

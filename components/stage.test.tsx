@@ -64,8 +64,13 @@ vi.mock('@/components/sushi-model', () => ({
 // Canvas is a plain div here, so real R3F intrinsics (<ambientLight>,
 // <planeGeometry args={...}>) would reach React DOM and warn. SceneEnv is
 // already covered against a real three scene graph in its own test.
+// Stage only ever imports the SceneEnv component from this module — it
+// never reads FLOOR_Y or SHADOW_Y — so the mock declares nothing else.
+// (An earlier version of this mock also declared FLOOR_Y, unused by
+// anything here, and it drifted out of sync with the real constant when
+// that changed; dead mock surface has no way to be caught by a failing
+// test, so it's removed rather than just corrected.)
 vi.mock('@/components/scene-env', () => ({
-  FLOOR_Y: -0.002,
   SceneEnv: ({ mode }: { mode: string }) => <div data-testid="scene-env" data-mode={mode} />,
 }))
 
