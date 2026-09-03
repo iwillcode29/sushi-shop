@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const progress = { active: true, progress: 0 }
 
@@ -8,6 +8,11 @@ vi.mock('@react-three/drei', () => ({
 }))
 
 import { Loader } from '@/components/loader'
+
+beforeEach(() => {
+  progress.active = true
+  progress.progress = 0
+})
 
 describe('Loader', () => {
   it('renders nothing once loading has finished', () => {
