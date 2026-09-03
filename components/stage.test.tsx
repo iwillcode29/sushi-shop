@@ -32,6 +32,11 @@ vi.mock('@react-three/drei', () => ({
   }),
 }))
 
+// Hoisted so the mock factory below (which vi.mock hoists above these
+// imports) can read it: lets a single test opt a throw into an otherwise
+// well-behaved mock, to exercise Stage's ModelErrorBoundary wiring.
+const modelThrow = vi.hoisted(() => ({ shouldThrow: false }))
+
 vi.mock('@/components/sushi-model', () => ({
   MODEL_URL: '/models/sushis.glb',
   SushiModel: ({
@@ -40,15 +45,20 @@ vi.mock('@/components/sushi-model', () => ({
   }: {
     mode: string
     onConversionError?: (error: unknown) => void
-  }) => (
-    <div data-testid="model" data-mode={mode}>
-      <button
-        type="button"
-        data-testid="break-materials"
-        onClick={() => onConversionError?.(new Error('material conversion failed'))}
-      />
-    </div>
-  ),
+  }) => {
+    if (modelThrow.shouldThrow) {
+      throw new Error('model render failed')
+    }
+    return (
+      <div data-testid="model" data-mode={mode}>
+        <button
+          type="button"
+          data-testid="break-materials"
+          onClick={() => onConversionError?.(new Error('material conversion failed'))}
+        />
+      </div>
+    )
+  },
 }))
 
 // Canvas is a plain div here, so real R3F intrinsics (<ambientLight>,
@@ -71,11 +81,42 @@ function stubWebGL(available: boolean) {
   )
 }
 
+type IntersectionCallback = (entries: { isIntersecting: boolean }[]) => void
+
+// jsdom has no IntersectionObserver, and Stage guards on
+// `typeof IntersectionObserver === 'undefined'` — so without this stub the
+// whole visibility/intersection effect is skipped. Installed only inside the
+// tests that need it (not the shared setup file) and torn down via
+// vi.unstubAllGlobals() below.
+function stubIntersectionObserver() {
+  let callback: IntersectionCallback = () => {}
+  const disconnect = vi.fn()
+
+  class FakeIntersectionObserver {
+    constructor(cb: IntersectionCallback) {
+      callback = cb
+    }
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = disconnect
+    takeRecords = () => []
+  }
+
+  vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
+
+  return {
+    trigger: (isIntersecting: boolean) => callback([{ isIntersecting }]),
+    disconnect,
+  }
+}
+
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
   vi.useRealTimers()
   orbitProps.length = 0
   reducedMotion = false
+  modelThrow.shouldThrow = false
 })
 
 describe('Stage', () => {
@@ -116,6 +157,7 @@ describe('Stage', () => {
     expect(props.maxPolarAngle).toBeCloseTo(ORBIT_LIMITS.maxPolarAngle, 5)
     expect(props.minDistance).toBe(ORBIT_LIMITS.minDistance)
     expect(props.maxDistance).toBe(ORBIT_LIMITS.maxDistance)
+    expect(props.autoRotateSpeed).toBe(ORBIT_LIMITS.autoRotateSpeed)
   })
 
   it('auto-rotates on mount', () => {
@@ -144,7 +186,12 @@ describe('Stage', () => {
     act(() => onEnd())
     expect(orbitProps.at(-1)!.autoRotate).toBe(false)
 
-    act(() => vi.advanceTimersByTime(IDLE_RESUME_MS))
+    // Proves the resume waits for the full delay, not merely "eventually":
+    // one millisecond short must still be off.
+    act(() => vi.advanceTimersByTime(IDLE_RESUME_MS - 1))
+    expect(orbitProps.at(-1)!.autoRotate).toBe(false)
+
+    act(() => vi.advanceTimersByTime(1))
     expect(orbitProps.at(-1)!.autoRotate).toBe(true)
   })
 
@@ -157,5 +204,55 @@ describe('Stage', () => {
 
     await userEvent.click(screen.getByTestId('break-materials'))
     expect(screen.getByTestId('model')).toHaveAttribute('data-mode', 'unlit')
+  })
+
+  it('sets frameloop to never when the canvas leaves the viewport, and back to always when it returns', () => {
+    const observer = stubIntersectionObserver()
+    stubWebGL(true)
+    render(<Stage />)
+    expect(screen.getByTestId('canvas')).toHaveAttribute('data-frameloop', 'always')
+
+    act(() => observer.trigger(false))
+    expect(screen.getByTestId('canvas')).toHaveAttribute('data-frameloop', 'never')
+
+    act(() => observer.trigger(true))
+    expect(screen.getByTestId('canvas')).toHaveAttribute('data-frameloop', 'always')
+  })
+
+  it('sets frameloop to never when the tab is hidden, and back to always when visible', () => {
+    stubIntersectionObserver()
+    stubWebGL(true)
+    render(<Stage />)
+
+    const hiddenSpy = vi.spyOn(document, 'hidden', 'get')
+    hiddenSpy.mockReturnValue(true)
+    act(() => document.dispatchEvent(new Event('visibilitychange')))
+    expect(screen.getByTestId('canvas')).toHaveAttribute('data-frameloop', 'never')
+
+    hiddenSpy.mockReturnValue(false)
+    act(() => document.dispatchEvent(new Event('visibilitychange')))
+    expect(screen.getByTestId('canvas')).toHaveAttribute('data-frameloop', 'always')
+  })
+
+  it('disconnects the intersection observer on unmount', () => {
+    const observer = stubIntersectionObserver()
+    stubWebGL(true)
+    const { unmount } = render(<Stage />)
+    unmount()
+    expect(observer.disconnect).toHaveBeenCalledOnce()
+  })
+
+  it('renders the fallback panel instead of a blank canvas area when a child throws during render', () => {
+    // React logs caught render errors; silence the expected noise, scoped to
+    // this test only, and assert it actually fired rather than merely muting it.
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    modelThrow.shouldThrow = true
+    stubWebGL(true)
+
+    render(<Stage />)
+
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument()
+    expect(screen.queryByTestId('model')).not.toBeInTheDocument()
+    expect(consoleError).toHaveBeenCalled()
   })
 })
