@@ -1885,7 +1885,7 @@ export default Stage
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `npm test -- components/stage.test.tsx`
-Expected: PASS, 10 tests.
+Expected: PASS, 9 tests.
 
 - [ ] **Step 5: Write the client-side dynamic wrapper**
 
