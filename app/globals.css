@@ -24,3 +24,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@theme inline {
+  --color-shell: #efe7dc;
+  --color-ink: #211a13;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-shell);
+  color: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
