@@ -28,10 +28,15 @@ export default function Home() {
           is the largest text on the page (LCP budget) and must stay legible
           to anything that does not execute JavaScript. HeroOverlay, which
           owns the interactive toggle, is loaded client-only and renders
-          beneath this — the bottom padding here is offset to clear its
-          "Drag to rotate" row instead of sitting flush on top of it.
+          beneath this in paint order — the top padding here is offset to
+          clear its "Sushi / About" nav row instead of sitting flush under
+          it. The block sits at the top, not the bottom: the model is
+          centred (via Bounds, in stage.tsx) with enough margin to leave a
+          clear band at the top of the frame for exactly this text, so the
+          headline and the model's silhouette do not compete for the same
+          space.
         */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-end gap-5 px-6 pb-20 sm:px-10 sm:pb-24">
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-start gap-5 px-6 pt-16 sm:px-10 sm:pt-24">
           <h1 className="max-w-2xl text-4xl leading-[1.03] font-semibold tracking-tight text-balance sm:text-6xl">
             Handcrafted in WebGL
           </h1>

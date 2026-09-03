@@ -126,7 +126,19 @@ export function Stage() {
           <SceneEnv mode={mode} />
 
           <Suspense fallback={null}>
-            <Bounds fit clip observe margin={1.15}>
+            {/*
+              No `clip`: it tightens the camera's near/far planes around
+              the model alone (Bounds' only children), which culled the far
+              reach of the 24x24 floor in SceneEnv — the floor sits outside
+              <Bounds> since it isn't part of what should be auto-framed.
+              Canvas's own near/far (0.1 / 100) already comfortably contains
+              the floor at every orbit distance.
+
+              margin is larger than a tight fit (1.15) so the model's
+              silhouette leaves clear bands top and bottom of the frame for
+              the headline and the drag-hint row — see HeroOverlay/page.tsx.
+            */}
+            <Bounds fit observe margin={2.4}>
               <SushiModel mode={mode} onConversionError={handleConversionError} />
             </Bounds>
             <Preload all />
