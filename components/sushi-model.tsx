@@ -1,7 +1,7 @@
 'use client'
 
 import { useGLTF } from '@react-three/drei'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 import type { Material, Mesh } from 'three'
 import { LitMaterialCache, type LightingMode } from '@/lib/materials'
 import { groundAndCenter } from '@/lib/scene-fit'
@@ -31,7 +31,17 @@ export function SushiModel({ mode, onConversionError }: SushiModelProps) {
     return byUuid
   }, [scene])
 
-  useEffect(() => {
+  // This must run in a layout effect, not a passive one. Bounds (the parent)
+  // also measures the model's bounding box in a layout effect, and React
+  // fires layout effects bottom-up — children before parents — within a
+  // commit. A passive effect here would fire only after Bounds' own layout
+  // effect had already measured and framed the camera on the model's raw,
+  // as-authored transform (whatever offset the GLB happened to ship with),
+  // not the grounded/centred one. That produced a camera locked onto a
+  // stale bounding box: the model would then reposition itself to true
+  // origin post-fit, leaving the framing off-centre and low, exactly as
+  // this bug reported.
+  useLayoutEffect(() => {
     groundAndCenter(scene)
   }, [scene])
 
