@@ -4,11 +4,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { HeroOverlay } from '@/components/hero-overlay'
 
 describe('HeroOverlay', () => {
-  it('renders the headline as the page heading', () => {
-    render(<HeroOverlay mode="unlit" onToggleMode={() => {}} />)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Handcrafted in WebGL/i)
-  })
-
   it('reports the toggle as unpressed in unlit mode', () => {
     render(<HeroOverlay mode="unlit" onToggleMode={() => {}} />)
     expect(screen.getByRole('button', { name: /lighting/i })).toHaveAttribute(

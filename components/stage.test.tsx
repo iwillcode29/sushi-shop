@@ -131,7 +131,7 @@ describe('Stage', () => {
     stubWebGL(true)
     render(<Stage />)
     expect(screen.getByTestId('canvas')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /lighting/i })).toBeInTheDocument()
   })
 
   it('starts in unlit mode', () => {

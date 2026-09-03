@@ -22,6 +22,24 @@ export default function Home() {
     <main>
       <section className="relative h-[90dvh] w-full overflow-hidden sm:h-dvh">
         <StageLoader />
+
+        {/*
+          Server-rendered so the headline is present in the initial HTML: it
+          is the largest text on the page (LCP budget) and must stay legible
+          to anything that does not execute JavaScript. HeroOverlay, which
+          owns the interactive toggle, is loaded client-only and renders
+          beneath this — the bottom padding here is offset to clear its
+          "Drag to rotate" row instead of sitting flush on top of it.
+        */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-end gap-5 px-6 pb-20 sm:px-10 sm:pb-24">
+          <h1 className="max-w-2xl text-4xl leading-[1.03] font-semibold tracking-tight text-balance sm:text-6xl">
+            Handcrafted in WebGL
+          </h1>
+          <p className="max-w-sm text-sm leading-relaxed opacity-65">
+            A low-poly sushi set loaded as glTF. Its materials are unlit by design — flip the
+            switch to see the same geometry rebuilt to catch light.
+          </p>
+        </div>
       </section>
 
       <section id="about" className="mx-auto max-w-3xl scroll-mt-16 px-6 py-24 sm:py-32">

@@ -13,6 +13,16 @@ describe('Home', () => {
     expect(screen.getByTestId('stage')).toBeInTheDocument()
   })
 
+  it('renders the headline as the page heading', () => {
+    render(<Home />)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Handcrafted in WebGL/i)
+  })
+
+  it('renders the subline describing the model', () => {
+    render(<Home />)
+    expect(screen.getByText(/loaded as glTF/i)).toBeInTheDocument()
+  })
+
   it('documents the model below the fold', () => {
     render(<Home />)
     expect(screen.getByRole('heading', { name: /about the model/i })).toBeInTheDocument()
