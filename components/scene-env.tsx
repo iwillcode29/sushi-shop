@@ -32,6 +32,18 @@ export function SceneEnv({ mode }: SceneEnvProps) {
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0005}
+        // three's default directional-light shadow camera is an
+        // orthographic box just ±5 units on a side, well short of the
+        // floor's reach (see planeGeometry below). Widened to keep the
+        // whole floor within it, with margin, so lit-mode shadow casting
+        // stays correct everywhere the floor is visible. (This was ruled
+        // out as the cause of the seam described below — castShadow={false}
+        // reproduced the seam identically — but it is a real, independent
+        // gap worth closing while touching this light.)
+        shadow-camera-left={-101}
+        shadow-camera-right={101}
+        shadow-camera-top={101}
+        shadow-camera-bottom={-101}
       />
 
       {/*
@@ -50,14 +62,10 @@ export function SceneEnv({ mode }: SceneEnvProps) {
 
       {/*
         Fog matches --color-shell (#efe7dc, the page background) and fades
-        the plane's far reach into it, so the 24x24 plane's edge (visible
-        now that Bounds' `clip` no longer truncates the camera's far plane
-        around it) reads as a horizon dissolving into the page rather than
-        a hard-edged cut. near/far are set well beyond the orbit's
-        maxDistance (9), so the model and the floor immediately around it
-        are never inside the fogged band at any zoom level the orbit
-        allows — only the plane's reach past where the orbit can bring the
-        camera fades out.
+        the plane's far reach into it, so it reads as a horizon dissolving
+        into the page. near/far are set well beyond the orbit's maxDistance
+        (9), so the model and the floor immediately around it are never
+        inside the fogged band at any zoom level the orbit allows.
       */}
       <fog attach="fog" args={['#efe7dc', 10, 30]} />
 
@@ -77,8 +85,19 @@ export function SceneEnv({ mode }: SceneEnvProps) {
         lights are untouched, so the model's unlit/lit contrast is
         unaffected.
       */}
+      {/*
+        300x300, not the ~24x24 that would just cover the model's
+        neighbourhood: at a grazing camera angle (near the orbit's
+        maxPolarAngle) a small plane's actual edge comes into view well
+        before fog has fully converged its colour to the background, and
+        the residual difference reads as a hard, straight seam across the
+        frame — reproduced and confirmed by watching it disappear as the
+        plane grew from 24 to 300 with fog untouched. 300 keeps the edge
+        beyond where fog (far: 30) has visually finished blending, at
+        every camera position the orbit limits allow.
+      */}
       <mesh position={[0, FLOOR_Y, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[24, 24]} />
+        <planeGeometry args={[300, 300]} />
         <meshStandardMaterial
           color="#7d6b53"
           roughness={0.9}

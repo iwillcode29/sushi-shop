@@ -129,16 +129,28 @@ export function Stage() {
             {/*
               No `clip`: it tightens the camera's near/far planes around
               the model alone (Bounds' only children), which culled the far
-              reach of the 24x24 floor in SceneEnv — the floor sits outside
+              reach of the floor in SceneEnv — the floor sits outside
               <Bounds> since it isn't part of what should be auto-framed.
               Canvas's own near/far (0.1 / 100) already comfortably contains
               the floor at every orbit distance.
 
-              margin is larger than a tight fit (1.15) so the model's
-              silhouette leaves clear bands top and bottom of the frame for
-              the headline and the drag-hint row — see HeroOverlay/page.tsx.
+              margin was tuned empirically, not guessed: 1.15 (original)
+              let the model's silhouette fill ~87% of the frame's shorter
+              axis, leaving no room for any text band. 2.4 (first fix) went
+              the other way — the model read as a thumbnail in a mostly
+              empty frame. 1.3 is the largest value (smallest margin,
+              biggest model) that, checked across a full auto-rotate cycle
+              at both 1440x720 and 390x844, never clips the model's
+              silhouette at the frame edges and never enters the headline
+              or drag-hint bands. The board is long and thin, so its
+              on-screen footprint swings a lot between its broadside and
+              end-on presentations as it turns — 1.3 is sized to the
+              broadside worst case, not a single resting frame. A tighter
+              margin (~1.0) filled 1440x720 nicely but left as little as
+              ~3% clearance from the mobile viewport's edges at some
+              rotation angles — too close to real clipping risk to keep.
             */}
-            <Bounds fit observe margin={2.4}>
+            <Bounds fit observe margin={1.3}>
               <SushiModel mode={mode} onConversionError={handleConversionError} />
             </Bounds>
             <Preload all />
