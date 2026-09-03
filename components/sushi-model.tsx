@@ -66,13 +66,32 @@ export function SushiModel({ mode, onConversionError }: SushiModelProps) {
       applyMode(mode)
     } catch (error) {
       // A malformed material must not blank the canvas: keep what the GLB
-      // shipped with and let the stage return its own state to unlit.
-      applyMode('unlit')
+      // shipped with and let the stage return its own state to unlit. The
+      // restore itself must not throw either — the whole point of this catch
+      // is that the component never rethrows, so onConversionError must still
+      // fire even if applyMode('unlit') fails here.
+      try {
+        applyMode('unlit')
+      } catch {
+        // Authored materials could not be restored; still report the
+        // original conversion failure below rather than losing it.
+      }
       onConversionError?.(error)
     }
   }, [applyMode, mode, onConversionError])
 
-  useEffect(() => () => cache.dispose(), [cache])
+  useEffect(() => {
+    return () => {
+      // useGLTF caches the scene and hands the same object back on the next
+      // mount (e.g. React Strict Mode's mount/unmount/remount in dev), so the
+      // authored materials must go back onto the meshes before the converted
+      // ones are disposed — otherwise the next mount's `originals` capture
+      // would be these disposed materials instead of the real ones, and the
+      // restore path is poisoned from then on.
+      applyMode('unlit')
+      cache.dispose()
+    }
+  }, [applyMode, cache])
 
   return <primitive object={scene} />
 }

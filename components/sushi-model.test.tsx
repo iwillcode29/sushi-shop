@@ -93,6 +93,31 @@ describe('SushiModel', () => {
     expect(scene.position.y).toBeCloseTo(-6.5, 5)
   })
 
+  it('restores authored materials on unmount so a remount does not inherit disposed ones', async () => {
+    // useGLTF caches the scene and hands back the same object on every mount
+    // (mirrored here by the mock reusing the module-scope `scene`), so if
+    // unmount disposes the converted materials without restoring the
+    // authored ones first, the next mount's `originals` capture will be the
+    // disposed materials instead of the real MeshBasicMaterial instances.
+    const authoredOriginals = meshes().map((mesh) => mesh.material)
+
+    const first = await ReactThreeTestRenderer.create(<SushiModel mode="lit" />)
+    await first.unmount()
+
+    const second = await ReactThreeTestRenderer.create(<SushiModel mode="lit" />)
+    await second.update(<SushiModel mode="unlit" />)
+
+    meshes().forEach((mesh, index) => {
+      expect(mesh.material).toBe(authoredOriginals[index])
+    })
+
+    // Switching modes still works after the remount.
+    await second.update(<SushiModel mode="lit" />)
+    for (const mesh of meshes()) {
+      expect(mesh.material).toBeInstanceOf(MeshStandardMaterial)
+    }
+  })
+
   it('keeps the authored materials and reports upward when conversion fails', async () => {
     const onConversionError = vi.fn()
     const source = meshes()[0].material as MeshBasicMaterial
