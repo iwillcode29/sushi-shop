@@ -1,4 +1,4 @@
-# 鮨 かねもり — sushi shop
+# SUSHIMEOW（鮨 ねこもり）— sushi shop
 
 A two-route demo. `/` presents a low-poly sushi set as glTF, rendered with
 react-three-fiber and shown both with its authored unlit materials and with a
@@ -65,10 +65,34 @@ jsdom and so cannot be asserted on directly.
 Visitors who prefer reduced motion get no intro and no camera move, and the
 video is never requested.
 
+## Brand
+
+The palette and typography come from the logo, not the other way round: every
+colour token in `app/globals.css` was sampled out of `public/brand/` — `paper`
+is the print's own stock, `sumi` the ink of its brush strokes, `salmon` the
+neta on the cat's back, `shu` the hanko. The artwork is keyed off its paper
+into transparent WebP, so it sits on the page without an edge; the page ground
+is the same washi, with the fibre drawn by an SVG turbulence tile rather than
+shipped as a raster.
+
+`/menu` is the same brand on a dark ground: the counter is that sumi taken
+down rather than a neutral near-black, the fibre is re-emitted as paper
+(`.washi-lit`) since sumi speckle over near-black is nothing at all, and the
+wordmark is a reversed print — `sushimeow-wordmark-paper.webp` is the same
+brush alpha with the pigment swapped for the stock it lands on. The hanko
+needs no reversed version; its own vermilion carries on both grounds.
+
+Fraunces carries display type, Archivo the tracked-caps small type. Japanese
+is set in the reader's own mincho — a webfont subset for it is megabytes and
+every platform here already ships a good one.
+
 ## Assets
 
 - Sushi set (`public/models/sushis.glb`) sourced from Sketchfab. Attribution
   and licence terms to be confirmed.
+- Logo and brand marks (`public/brand/`, `app/favicon.ico`,
+  `app/apple-icon.jpg`, `app/opengraph-image.jpg`) derived from the
+  commissioned SUSHIMEOW artwork.
 - Studio HDR (`public/hdr/`) from
   [pmndrs/drei-assets](https://github.com/pmndrs/drei-assets) @ `456060a`,
   vendored rather than fetched from a CDN at runtime.
