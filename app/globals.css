@@ -221,3 +221,235 @@ html {
   animation: kaiten-ride-cast 33.6s linear infinite;
   will-change: transform;
 }
+
+/*
+  A piece of sushi is a control. It is also moving, so the usual affordances
+  have to survive being under a CSS transform: the lift is a translate on the
+  <image> itself, which composes with the row's transform on its parent rather
+  than fighting it, and the focus ring is drawn by outline, which follows the
+  rendered box wherever the animation has put it.
+*/
+.kaiten-piece {
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(0.32, 0, 0.36, 1);
+}
+
+.kaiten-piece:hover {
+  transform: translateY(-6px);
+}
+
+.kaiten-piece:focus-visible {
+  outline: 2px solid var(--color-shu);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/*
+  The tally. Keyed on the count in the markup, so React replaces the element
+  on every change and the animation runs from the start each time — a count
+  that ticks up without moving is a count nobody notices has changed.
+*/
+@keyframes kaiten-tally {
+  from {
+    transform: scale(0.55);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.kaiten-tally {
+  animation: kaiten-tally 320ms cubic-bezier(0.32, 0, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kaiten-piece {
+    transition: none;
+  }
+
+  .kaiten-piece:hover {
+    transform: none;
+  }
+
+  .kaiten-tally {
+    animation: none;
+  }
+}
+
+/*
+  折詰 — the packing sequence.
+
+  Every keyframe below declares only `from`, and every rule uses
+  `animation-fill-mode: backwards`. That is not a style: it is what makes the
+  whole sequence degrade correctly. The element's resting state in the
+  cascade IS its finished state, so a visitor who has asked for reduced
+  motion gets the packed box and the receipt exactly as they end up, simply
+  without having watched them arrive — no duplicated final values, nothing to
+  keep in step, and nothing left invisible if an animation never runs.
+
+  The easing is exponential-out throughout. Things here are being set down by
+  a pair of hands: they cover most of the distance immediately and then take
+  their time about the last of it. Nothing bounces; nothing overshoots.
+*/
+@keyframes orizume-arrive {
+  from {
+    transform: translate(var(--orizume-from));
+    opacity: 0.15;
+  }
+}
+
+@keyframes orizume-divide {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+}
+
+/* The same gesture on a divider that runs the other way: a strip is set in
+   along its own length, so which axis that is depends on the strip. */
+@keyframes orizume-divide-across {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+
+/*
+  The pieces come in the way they left: down the belt, from the lower left,
+  and a little above the box. -260 along travel is (-260, +57.2) on the page
+  at RISE 0.22, less the 46 they are still to drop.
+*/
+@keyframes orizume-lay {
+  from {
+    transform: translate(-260px, 11.2px);
+    opacity: 0;
+  }
+}
+
+@keyframes orizume-band {
+  from {
+    transform: translate(300px, -66px);
+    opacity: 0;
+  }
+}
+
+.orizume-arrive,
+.orizume-divide,
+.orizume-divide-across,
+.orizume-lay,
+.orizume-band {
+  animation-duration: 700ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: backwards;
+}
+
+.orizume-arrive {
+  animation-name: orizume-arrive;
+}
+
+.orizume-divide,
+.orizume-divide-across {
+  animation-duration: 460ms;
+  /* The divider is a rect inside the sheared group, so its own box is the
+     only origin that means anything. */
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.orizume-divide {
+  animation-name: orizume-divide;
+}
+
+.orizume-divide-across {
+  animation-name: orizume-divide-across;
+}
+
+.orizume-lay {
+  animation-name: orizume-lay;
+  animation-duration: 620ms;
+}
+
+.orizume-band {
+  animation-name: orizume-band;
+  animation-duration: 520ms;
+}
+
+.kaiten-veil {
+  animation: kaiten-fade 900ms ease-out backwards;
+}
+
+@keyframes kaiten-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+  The receipt unrolls rather than scaling: scaleY on a strip of type stretches
+  the type. A clip that opens downward is the paper coming off the roll, and
+  the glyphs keep their proportions the whole way.
+*/
+@keyframes kaiten-receipt {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-14px) rotate(-1.6deg);
+  }
+}
+
+.kaiten-receipt {
+  animation: kaiten-receipt 620ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes kaiten-receipt-line {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+}
+
+.kaiten-receipt-line {
+  animation: kaiten-receipt-line 420ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/*
+  The seal. It comes down from above the paper, off-square, and lands square
+  — the way a stamp held in a hand does. Fast, because a stamp is fast, and
+  the only thing in the sequence that is.
+*/
+@keyframes kaiten-hanko {
+  from {
+    opacity: 0;
+    transform: scale(1.75) rotate(-15deg);
+  }
+  70% {
+    opacity: 1;
+  }
+}
+
+.kaiten-hanko {
+  transform: rotate(-5deg);
+  animation: kaiten-hanko 300ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.kaiten-again {
+  animation: kaiten-receipt-line 600ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orizume-arrive,
+  .orizume-divide,
+  .orizume-divide-across,
+  .orizume-lay,
+  .orizume-band,
+  .kaiten-veil,
+  .kaiten-receipt,
+  .kaiten-receipt-line,
+  .kaiten-hanko,
+  .kaiten-again {
+    animation: none;
+  }
+}
+

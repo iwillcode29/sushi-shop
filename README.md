@@ -1,9 +1,10 @@
 # SUSHIMEOW（鮨 ねこもり）— sushi shop
 
-A two-route demo. `/` presents a low-poly sushi set as glTF, rendered with
+A three-route demo. `/` presents a low-poly sushi set as glTF, rendered with
 react-three-fiber and shown both with its authored unlit materials and with a
 converted PBR treatment. `/menu` is a scroll-driven sequence: an approach to
-the shopfront, the set on the counter, then the prices.
+the shopfront, the set on the counter, then the prices. `/kaiten` is a belt
+you can take sushi off, and a till that packs what you took into a box.
 
 ## Getting started
 
@@ -64,6 +65,43 @@ jsdom and so cannot be asserted on directly.
 
 Visitors who prefer reduced motion get no intro and no camera move, and the
 video is never requested.
+
+## How /kaiten works
+
+The scene is one oblique axonometric, `lib/kaiten-projection.ts`, built from
+two screen vectors rather than a camera — travel `(1, -0.22)` and width
+`(0.6, 0.72)`. Anything lying on the belt is authored as an axis-aligned
+shape in belt space and mapped onto the page by a matrix whose columns are
+those two vectors, so the slats are plain rects and the belt's travel is a
+plain `translateX`. The sushi are the exception: a nigiri put through the
+shear is a nigiri lying on its side, so pieces are placed in page space at
+the projection of the point they are standing on.
+
+The belt itself is CSS. Two animations, and their durations are not
+independent — the strip travels one slat pitch per cycle and a roller is
+r=26, so it turns 140/163.4 of a revolution in the same time, which is why
+2.8s of travel has to be 3.27s of roll. The stylesheet cannot import those
+numbers, so `components/kaiten-belt.test.tsx` reads `app/globals.css` and
+checks the arithmetic that joins them.
+
+Taking a piece leaves a hole, and the hole has to be refilled or the belt
+runs out. `lib/kaiten-restock.ts` works out when: the row is a CSS animation
+with a known timeline, so the moment a given slot is outside the frame is
+arithmetic rather than observation, and nobody ever watches a piece of sushi
+appear out of nothing.
+
+Settling the bill packs the order into a 折詰 drawn in that same projection,
+which is the point of it — a box in its own coordinate system is a card that
+appeared over the page. On a portrait viewport the frame's crop is too tight
+for the box to land inside it, so the scene pulls back; the belt carries the
+same class and the same transform, or the box stops standing on it.
+
+Every keyframe in the packing sequence declares only `from`, and every rule
+uses `animation-fill-mode: backwards`. The resting state in the cascade is
+the finished state, so a visitor who asked for reduced motion gets the packed
+box and the receipt exactly as they end up, without having watched them
+arrive — nothing duplicated, nothing left invisible if an animation never
+runs.
 
 ## Brand
 
