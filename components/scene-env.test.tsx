@@ -8,14 +8,31 @@ const fogColorOf = (scene: unknown) => fogOf(scene).color.getHexString()
 const intensityOf = (light: unknown) => (light as Light).intensity
 const floorColorOf = (floor: Mesh) => (floor.material as MeshStandardMaterial).color.getHexString()
 
+const environmentProps: Record<string, unknown>[] = []
 vi.mock('@react-three/drei', () => ({
-  Environment: () => null,
+  Environment: (props: Record<string, unknown>) => {
+    environmentProps.push(props)
+    return null
+  },
   ContactShadows: () => null,
 }))
 
-import { FLOOR_Y, SHELL_FLOOR, SHELL_FOG, SceneEnv } from '@/components/scene-env'
+import { FLOOR_Y, SHELL_FLOOR, SHELL_FOG, STUDIO_HDR, SceneEnv } from '@/components/scene-env'
 
 describe('SceneEnv', () => {
+  // drei resolves `preset` to a URL on raw.githack.com and fetches it on
+  // every page load. A dropped connection, a CDN outage or a proxy that
+  // blocks it throws inside the canvas and takes the whole scene down, and
+  // it sends every visitor to a third party for a file we can serve.
+  it('loads its lighting from this origin, not from a CDN', async () => {
+    environmentProps.length = 0
+    await ReactThreeTestRenderer.create(<SceneEnv mode="lit" />)
+    const [props] = environmentProps
+    expect(props.preset).toBeUndefined()
+    expect(props.files).toBe(STUDIO_HDR)
+    expect(STUDIO_HDR.startsWith('/')).toBe(true)
+  })
+
   it('provides both an ambient fill and a directional key light', async () => {
     const renderer = await ReactThreeTestRenderer.create(<SceneEnv mode="lit" />)
     expect(renderer.scene.findAllByType('AmbientLight')).toHaveLength(1)

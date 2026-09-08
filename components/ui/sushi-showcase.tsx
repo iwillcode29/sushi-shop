@@ -53,6 +53,36 @@ const FONT = 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, Segoe U
  */
 const RESTING_PROGRESS = 0.38
 
+/**
+ * What stands in for the set when it cannot be drawn — no WebGL context, or
+ * the scene threw while building. Both read the same to a visitor, so they
+ * get the same panel, in the counter's colours rather than the home page's.
+ */
+function StagePanel({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 16,
+        padding: '0 24px',
+        textAlign: 'center',
+        color: 'rgba(244, 239, 231, 0.7)',
+        fontFamily: FONT,
+      }}
+    >
+      <span aria-hidden="true" style={{ fontSize: 44 }}>
+        🍣
+      </span>
+      <p style={{ maxWidth: '32ch', fontSize: 13, lineHeight: 1.7 }}>{children}</p>
+    </div>
+  )
+}
+
 function ScrollCamera({
   sectionRef,
   frozenAt,
@@ -139,7 +169,13 @@ export function SushiShowcase({
         style={{ position: 'sticky', top: 0, height: '100dvh', overflow: 'hidden', background: SUMI }}
       >
         {webglAvailable === null ? null : webglAvailable ? (
-          <ModelErrorBoundary>
+          <ModelErrorBoundary
+            fallback={
+              <StagePanel>
+                The set cannot be shown right now. The menu below still works.
+              </StagePanel>
+            }
+          >
             <Canvas
               frameloop={frameloop}
               shadows="percentage"
@@ -175,29 +211,10 @@ export function SushiShowcase({
             </Canvas>
           </ModelErrorBoundary>
         ) : (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 16,
-              padding: '0 24px',
-              textAlign: 'center',
-              color: 'rgba(244, 239, 231, 0.7)',
-              fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
-            }}
-          >
-            <span aria-hidden="true" style={{ fontSize: 44 }}>
-              🍣
-            </span>
-            <p style={{ maxWidth: '30ch', fontSize: 13, lineHeight: 1.7 }}>
-              This browser cannot open a WebGL context, so the set cannot be rendered here. The
-              menu below still works.
-            </p>
-          </div>
+          <StagePanel>
+            This browser cannot open a WebGL context, so the set cannot be shown here. The menu
+            below still works.
+          </StagePanel>
         )}
 
         {/*

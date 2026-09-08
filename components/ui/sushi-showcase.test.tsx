@@ -22,9 +22,13 @@ vi.mock('@react-three/drei', () => ({
   }),
 }))
 
+const model = vi.hoisted(() => ({ shouldThrow: false }))
 vi.mock('@/components/sushi-model', () => ({
   MODEL_URL: '/models/sushis.glb',
-  SushiModel: ({ mode }: { mode: string }) => <div data-testid="model" data-mode={mode} />,
+  SushiModel: ({ mode }: { mode: string }) => {
+    if (model.shouldThrow) throw new Error('scene build failed')
+    return <div data-testid="model" data-mode={mode} />
+  },
 }))
 
 vi.mock('@/components/scene-env', () => ({
@@ -42,6 +46,8 @@ import { SushiShowcase } from '@/components/ui/sushi-showcase'
 
 afterEach(() => {
   webgl.available = true
+  model.shouldThrow = false
+  vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
 
@@ -107,6 +113,24 @@ describe('SushiShowcase', () => {
     expect(screen.queryByTestId('canvas')).toBeNull()
     expect(screen.queryByText(/webgl/i)).toBeNull()
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
+  })
+
+  // The default boundary poster is the home page's: cream, and headed
+  // "Handcrafted in WebGL". Dropped onto the dark counter it reads as a
+  // different site.
+  it('fails in its own colours, not the home page\'s', () => {
+    model.shouldThrow = true
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    render(<SushiShowcase />)
+    expect(screen.queryByText(/handcrafted in webgl/i)).toBeNull()
+    expect(screen.getByText(/set cannot be shown/i)).toBeInTheDocument()
+  })
+
+  it('keeps naming the shop even when the scene fails', () => {
+    model.shouldThrow = true
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    render(<SushiShowcase title="鮨 かねもり" />)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('鮨 かねもり')
   })
 
   it('renders on every frame while it is on screen', () => {

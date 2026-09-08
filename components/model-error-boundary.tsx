@@ -6,6 +6,12 @@ import { FallbackPoster } from '@/components/fallback-poster'
 type Props = {
   children: ReactNode
   onRetry?: () => void
+  /**
+   * Shown instead of the default poster. The default is the home page's —
+   * cream, and headed "Handcrafted in WebGL" — which is the wrong colour and
+   * the wrong words anywhere else.
+   */
+  fallback?: ReactNode
 }
 
 type State = {
@@ -31,7 +37,7 @@ export class ModelErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.failed) {
-      return <FallbackPoster reason="load-failed" onRetry={this.handleRetry} />
+      return this.props.fallback ?? <FallbackPoster reason="load-failed" onRetry={this.handleRetry} />
     }
     return this.props.children
   }

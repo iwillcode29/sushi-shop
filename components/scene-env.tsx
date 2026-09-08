@@ -21,6 +21,18 @@ export const FLOOR_Y = -0.02
 export const SHELL_FOG = '#efe7dc'
 export const SHELL_FLOOR = '#7d6b53'
 
+/**
+ * The studio IBL, served from this origin.
+ *
+ * drei's `preset="studio"` resolves to a file on raw.githack.com and fetches
+ * it at runtime on every page load. That put the whole scene behind a third
+ * party: a dropped connection, a CDN outage, or a proxy that blocks it throws
+ * inside the canvas, the error boundary catches it, and the visitor gets the
+ * failure poster instead of the model. It is byte-for-byte the file the
+ * preset pointed at — pmndrs/drei-assets @ 456060a, hdri/studio_small_03_1k.hdr.
+ */
+export const STUDIO_HDR = '/hdr/studio_small_03_1k.hdr'
+
 type SceneEnvProps = {
   mode: LightingMode
   /**
@@ -67,7 +79,7 @@ export function SceneEnv({
 }: SceneEnvProps) {
   return (
     <>
-      <Environment preset="studio" environmentIntensity={environmentIntensity} />
+      <Environment files={STUDIO_HDR} environmentIntensity={environmentIntensity} />
       <ambientLight intensity={ambientIntensity} />
       <directionalLight
         position={[4, 6, 3]}
