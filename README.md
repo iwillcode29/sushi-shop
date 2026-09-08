@@ -93,6 +93,13 @@ every platform here already ships a good one.
 - Logo and brand marks (`public/brand/`, `app/favicon.ico`,
   `app/apple-icon.jpg`, `app/opengraph-image.jpg`) derived from the
   commissioned SUSHIMEOW artwork.
+- Sushi pieces on `/kaiten` (`public/sushi/`) cut out of the *asia food icon
+  set* by macrovector / Freepik. The set ships an `.eps` and a 4500x4500 `.jpg`
+  of the same sheet; these came off the JPEG, matted by flooding the white and
+  the printed drop shadow away from the border rather than keying white
+  globally, which would punch through the rice. Freepik's free licence
+  requires the credit to appear on the site, and it does, at the foot of the
+  route.
 - Studio HDR (`public/hdr/`) from
   [pmndrs/drei-assets](https://github.com/pmndrs/drei-assets) @ `456060a`,
   vendored rather than fetched from a CDN at runtime.

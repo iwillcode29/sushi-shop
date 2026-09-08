@@ -139,3 +139,85 @@ html {
     scroll-behavior: auto;
   }
 }
+
+/*
+  The /kaiten belt. Both animations are on SVG children of a sheared group, so
+  they are authored in belt space and the shear is inherited — see the header
+  of components/kaiten-belt.tsx.
+
+  The two durations are not independent. The strip travels one slat pitch,
+  140 belt units, per cycle; a roller is r=26, so its circumference is 163.4
+  and it turns 140/163.4 = 0.857 of a revolution in that same time. 2.8s of
+  travel therefore has to be 3.27s of roll, or the rollers visibly slip under
+  a belt they are supposed to be driving.
+*/
+@keyframes kaiten-travel {
+  to {
+    transform: translateX(140px);
+  }
+}
+
+@keyframes kaiten-roll {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.kaiten-travel {
+  animation: kaiten-travel 2.8s linear infinite;
+  will-change: transform;
+}
+
+.kaiten-roll {
+  /* An SVG element's transform-origin resolves against the viewBox by
+     default, which would swing every roller around the top-left of the page.
+     fill-box puts it on the roller's own bounding box, and the marks inside
+     are centred so that box is centred on the axle. */
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kaiten-roll 3.27s linear infinite;
+}
+
+/* A belt that never stops is the whole point of the picture, but it is also
+   an unbroken repeating drift across the full width of the viewport. */
+@media (prefers-reduced-motion: reduce) {
+  .kaiten-travel,
+  .kaiten-roll,
+  .kaiten-ride,
+  .kaiten-ride-cast {
+    animation: none;
+  }
+}
+
+/*
+  The pieces on the belt. Two animations for one movement: the pieces
+  themselves travel in page space, because a nigiri put through the belt
+  matrix is a nigiri lying on its side, while the shadows they cast travel in
+  belt space, where a circle is already the right ellipse. Same distance, same
+  duration, so they never come apart.
+
+  RIDE_LOOP is eight slots of 210 belt units. At the belt's own 140 units per
+  2.8s that is 33.6s, and the vertical component of the page-space leg is
+  0.22 x 1680 — the pieces have to climb the same rake the slats do.
+*/
+@keyframes kaiten-ride {
+  to {
+    transform: translate(1680px, -369.6px);
+  }
+}
+
+@keyframes kaiten-ride-cast {
+  to {
+    transform: translateX(1680px);
+  }
+}
+
+.kaiten-ride {
+  animation: kaiten-ride 33.6s linear infinite;
+  will-change: transform;
+}
+
+.kaiten-ride-cast {
+  animation: kaiten-ride-cast 33.6s linear infinite;
+  will-change: transform;
+}
