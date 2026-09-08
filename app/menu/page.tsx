@@ -9,7 +9,7 @@ const SHOP_LINE = 'Edomae sushi · Ginza · twelve seats, one seating a night'
 export const metadata: Metadata = {
   title: '鮨 かねもり — Menu',
   description:
-    'Twelve neta from the counter at 鮨 かねもり, priced in yen. Scroll or use the arrow keys to move through the menu.',
+    'Walk up to the counter at 鮨 かねもり, see tonight\u2019s set, and read twelve neta priced in yen. Scroll to move through it.',
 }
 
 /** Overrides the site-wide cream in app/layout.tsx for this dark route. */
