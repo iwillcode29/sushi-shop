@@ -71,6 +71,17 @@ export function Stage() {
     idleTimer.current = setTimeout(() => setSpinning(true), IDLE_RESUME_MS)
   }, [])
 
+  // Hovering a sushi is an interaction like any other as far as the turntable
+  // is concerned: hold still while it lasts, then resume after the same idle
+  // delay a drag gets.
+  const handleHoverChange = useCallback(
+    (hovered: boolean) => {
+      if (hovered) handleInteractionStart()
+      else handleInteractionEnd()
+    },
+    [handleInteractionEnd, handleInteractionStart],
+  )
+
   useEffect(() => () => {
     if (idleTimer.current) clearTimeout(idleTimer.current)
   }, [])
@@ -164,7 +175,11 @@ export function Stage() {
               rotation angles — too close to real clipping risk to keep.
             */}
             <Bounds fit observe margin={1.3}>
-              <SushiModel mode={mode} onConversionError={handleConversionError} />
+              <SushiModel
+                mode={mode}
+                onConversionError={handleConversionError}
+                onHoverChange={handleHoverChange}
+              />
             </Bounds>
             <Preload all />
           </Suspense>

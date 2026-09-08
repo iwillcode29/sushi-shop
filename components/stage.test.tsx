@@ -42,9 +42,11 @@ vi.mock('@/components/sushi-model', () => ({
   SushiModel: ({
     mode,
     onConversionError,
+    onHoverChange,
   }: {
     mode: string
     onConversionError?: (error: unknown) => void
+    onHoverChange?: (hovered: boolean) => void
   }) => {
     if (modelThrow.shouldThrow) {
       throw new Error('model render failed')
@@ -56,6 +58,8 @@ vi.mock('@/components/sushi-model', () => ({
           data-testid="break-materials"
           onClick={() => onConversionError?.(new Error('material conversion failed'))}
         />
+        <button type="button" data-testid="hover-on" onClick={() => onHoverChange?.(true)} />
+        <button type="button" data-testid="hover-off" onClick={() => onHoverChange?.(false)} />
       </div>
     )
   },
@@ -193,6 +197,25 @@ describe('Stage', () => {
 
     // Proves the resume waits for the full delay, not merely "eventually":
     // one millisecond short must still be off.
+    act(() => vi.advanceTimersByTime(IDLE_RESUME_MS - 1))
+    expect(orbitProps.at(-1)!.autoRotate).toBe(false)
+
+    act(() => vi.advanceTimersByTime(1))
+    expect(orbitProps.at(-1)!.autoRotate).toBe(true)
+  })
+
+  it('stops auto-rotating while a sushi is hovered, and resumes after the idle delay', () => {
+    // The model turns under a still pointer, so without this the hovered piece
+    // rotates out from under the cursor and the lift flickers on and off.
+    vi.useFakeTimers()
+    stubWebGL(true)
+    render(<Stage />)
+    expect(orbitProps.at(-1)!.autoRotate).toBe(true)
+
+    act(() => screen.getByTestId('hover-on').click())
+    expect(orbitProps.at(-1)!.autoRotate).toBe(false)
+
+    act(() => screen.getByTestId('hover-off').click())
     act(() => vi.advanceTimersByTime(IDLE_RESUME_MS - 1))
     expect(orbitProps.at(-1)!.autoRotate).toBe(false)
 
