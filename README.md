@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 鮨 かねもり — sushi shop
 
-## Getting Started
+A two-route demo. `/` presents a low-poly sushi set as glTF, rendered with
+react-three-fiber and shown both with its authored unlit materials and with a
+converted PBR treatment. `/menu` is a scroll-driven sequence: an approach to
+the shopfront, the set on the counter, then the prices.
 
-First, run the development server:
+## Getting started
+
+This repository stores its video, HDR and glTF assets in **Git LFS**. Install
+it before cloning, or the three files under `public/` arrive as 133-byte
+pointer stubs and the pages render a failure panel instead of the model:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+brew install git-lfs   # or your platform's package
+git lfs install        # once per machine
+git clone https://github.com/iwillcode29/sushi-shop.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Already cloned without it? `git lfs install && git lfs pull`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev            # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| | |
+|---|---|
+| `npm test` | vitest |
+| `npm run typecheck` | tsc --noEmit |
+| `npm run lint` | eslint |
+| `npm run build` | production build |
 
-## Learn More
+## How /menu works
 
-To learn more about Next.js, take a look at the following resources:
+The whole route is one continuous page scroll. Both animated stages are
+`position: sticky` sections whose progress is read from `getBoundingClientRect`
+in an animation loop, so nothing on the route captures wheel events — whichever
+component called `preventDefault` would win, and the scroll every other stage
+depends on would stop arriving.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The intro never plays its video. Scroll position is written straight to
+`currentTime`, so the camera walks up to the entrance exactly as fast as the
+visitor scrolls. That only stays smooth because the clip is encoded all-intra;
+with a long-GOP source, seeking to an arbitrary frame costs a decode from the
+previous keyframe and the picture falls behind the scroll. To swap the clip:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+ffmpeg -i input.mp4 -an -c:v libx264 -preset slow -crf 23 -g 1 \
+  -pix_fmt yuv420p -movflags +faststart public/video/sushi-counter.mp4
+```
 
-## Deploy on Vercel
+`-g 1` makes every frame a keyframe and is the part that matters.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The mapping from scroll position to what each stage shows lives in pure
+functions — `sectionProgress`, `introFrame`, `showcaseFrame` — because the
+components read their input from layout geometry, which reports zero under
+jsdom and so cannot be asserted on directly.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Visitors who prefer reduced motion get no intro and no camera move, and the
+video is never requested.
+
+## Assets
+
+- Sushi set (`public/models/sushis.glb`) sourced from Sketchfab. Attribution
+  and licence terms to be confirmed.
+- Studio HDR (`public/hdr/`) from
+  [pmndrs/drei-assets](https://github.com/pmndrs/drei-assets) @ `456060a`,
+  vendored rather than fetched from a CDN at runtime.
