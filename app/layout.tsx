@@ -18,14 +18,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        {/*
-          The GLB is the largest thing on the critical path and is fetched by a
-          lazily-imported client chunk, so the browser would otherwise not
-          learn about it until late.
-        */}
-        <link rel="preload" href="/models/sushis.glb" as="fetch" crossOrigin="anonymous" />
-      </head>
+      {/*
+        The GLB preload lives on the home route (components/preload-model),
+        not here: a hint in the root layout fires on every route beneath it,
+        including ones that never mount the canvas.
+      */}
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>

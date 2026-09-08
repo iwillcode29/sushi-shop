@@ -45,6 +45,15 @@ describe('Home', () => {
     expect(screen.getByText(/react-three-fiber/i)).toBeInTheDocument()
   })
 
+  // The hint belongs to this route, not the root layout: routes that never
+  // mount the canvas must not be told to fetch 1.4 MB of geometry.
+  it('preloads the model from the route that mounts it', () => {
+    render(<Home />)
+    expect(
+      document.head.querySelector('link[rel="preload"][href="/models/sushis.glb"]'),
+    ).not.toBeNull()
+  })
+
   it('anchors the About link target', () => {
     const { container } = render(<Home />)
     expect(container.querySelector('#about')).not.toBeNull()

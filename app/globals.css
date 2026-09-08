@@ -34,6 +34,17 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+  The menu route is a dark, full-bleed scroll sequence. Without this the
+  cream body colour above shows through the overscroll bounce at both ends
+  of the page, which reads as the layout having come apart. Keyed off a
+  marker on the route's own <main> because only the root layout renders
+  <body>, so a route cannot set a class on it.
+*/
+body:has([data-route='menu']) {
+  background: #0d0b0a;
+}
+
 body {
   background: var(--color-shell);
   color: var(--color-ink);

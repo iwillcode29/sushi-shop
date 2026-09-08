@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import type { LightingMode } from '@/lib/materials'
 
 type HeroOverlayProps = {
@@ -25,12 +26,25 @@ export function HeroOverlay({ mode, onToggleMode }: HeroOverlayProps) {
       */}
       <header className="flex items-start justify-between text-xs tracking-[0.25em] uppercase">
         <span className="font-semibold">Sushi</span>
-        <a
-          href="#about"
-          className="pointer-events-auto opacity-60 underline-offset-4 transition-opacity hover:opacity-100 hover:underline"
-        >
-          About
-        </a>
+        {/*
+          Both links keep the same text size as the row already used, so the
+          header's rendered height is unchanged and app/page.tsx's headline
+          padding still clears it.
+        */}
+        <nav className="flex items-center gap-5">
+          <Link
+            href="/menu"
+            className="pointer-events-auto opacity-60 underline-offset-4 transition-opacity hover:opacity-100 hover:underline"
+          >
+            Menu
+          </Link>
+          <a
+            href="#about"
+            className="pointer-events-auto opacity-60 underline-offset-4 transition-opacity hover:opacity-100 hover:underline"
+          >
+            About
+          </a>
+        </nav>
       </header>
 
       <div className="flex items-center justify-between gap-4">

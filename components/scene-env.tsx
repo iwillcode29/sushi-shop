@@ -17,18 +17,62 @@ import type { LightingMode } from '@/lib/materials'
 export const SHADOW_Y = -0.004
 export const FLOOR_Y = -0.02
 
+/** --color-shell: the page background every route but /menu sits on. */
+export const SHELL_FOG = '#efe7dc'
+export const SHELL_FLOOR = '#7d6b53'
+
 type SceneEnvProps = {
   mode: LightingMode
+  /**
+   * The colour the floor's far reach dissolves into. It has to match the page
+   * behind the canvas or the horizon reads as a band of the wrong colour
+   * across the bottom of the frame — which is exactly what the shell default
+   * does on a dark route.
+   */
+  fogColor?: string
+  /**
+   * Where the floor starts and finishes dissolving into `fogColor`. The
+   * defaults sit well beyond the home page's orbit limits so the model is
+   * never inside the fogged band; a dark counter wants them much nearer, so
+   * the floor sinks into black within a couple of metres and the set reads as
+   * sitting in a pool of light.
+   */
+  fogNear?: number
+  fogFar?: number
+  floorColor?: string
+  shadowColor?: string
+  /**
+   * The rig's levels. The defaults are tuned to the bright cream page; left
+   * at those, a near-black floor is lifted to mid grey.
+   */
+  ambientIntensity?: number
+  keyIntensity?: number
+  /** Tint of the key light. Warm on a lantern-lit counter, neutral in a studio. */
+  keyColor?: string
+  /** Scales the studio IBL, which lights the model and the floor alike. */
+  environmentIntensity?: number
 }
 
-export function SceneEnv({ mode }: SceneEnvProps) {
+export function SceneEnv({
+  mode,
+  fogColor = SHELL_FOG,
+  fogNear = 10,
+  fogFar = 30,
+  floorColor = SHELL_FLOOR,
+  shadowColor = '#1c1410',
+  ambientIntensity = 0.6,
+  keyIntensity = 1.4,
+  keyColor = '#ffffff',
+  environmentIntensity = 1,
+}: SceneEnvProps) {
   return (
     <>
-      <Environment preset="studio" />
-      <ambientLight intensity={0.6} />
+      <Environment preset="studio" environmentIntensity={environmentIntensity} />
+      <ambientLight intensity={ambientIntensity} />
       <directionalLight
         position={[4, 6, 3]}
-        intensity={1.4}
+        intensity={keyIntensity}
+        color={keyColor}
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0005}
@@ -64,17 +108,18 @@ export function SceneEnv({ mode }: SceneEnvProps) {
         blur={2.4}
         far={4}
         resolution={512}
-        color="#1c1410"
+        color={shadowColor}
       />
 
       {/*
-        Fog matches --color-shell (#efe7dc, the page background) and fades
-        the plane's far reach into it, so it reads as a horizon dissolving
-        into the page. near/far are set well beyond the orbit's maxDistance
-        (9), so the model and the floor immediately around it are never
-        inside the fogged band at any zoom level the orbit allows.
+        Fog matches the page background behind the canvas — --color-shell
+        (#efe7dc) by default, see SHELL_FOG — and fades the plane's far reach
+        into it, so it reads as a horizon dissolving into the page. near/far
+        are set well beyond the orbit's maxDistance (9), so the model and the
+        floor immediately around it are never inside the fogged band at any
+        zoom level the orbit allows.
       */}
-      <fog attach="fog" args={['#efe7dc', 10, 30]} />
+      <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
 
       {/*
         A pale, near-shell colour here (tried first) turned out to render
@@ -106,7 +151,7 @@ export function SceneEnv({ mode }: SceneEnvProps) {
       <mesh position={[0, FLOOR_Y, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[300, 300]} />
         <meshStandardMaterial
-          color="#7d6b53"
+          color={floorColor}
           roughness={0.9}
           metalness={0}
           envMapIntensity={0.4}

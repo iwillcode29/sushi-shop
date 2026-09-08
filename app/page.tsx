@@ -1,3 +1,4 @@
+import { PreloadModel } from '@/components/preload-model'
 import { StageLoader } from '@/components/stage-loader'
 
 const MODEL_FACTS: [string, string][] = [
@@ -20,6 +21,8 @@ const STACK = [
 export default function Home() {
   return (
     <main>
+      <PreloadModel href="/models/sushis.glb" />
+
       <section className="relative h-[90dvh] w-full overflow-hidden sm:h-dvh">
         <StageLoader />
 
