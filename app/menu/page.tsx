@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { MenuExperience } from '@/components/menu-experience'
 
 const VIDEO_SRC = '/video/sushi-counter.mp4'
+const POSTER_SRC = '/video/sushi-counter-poster.jpg'
 const SHOP_NAME = '鮨 かねもり'
 const SHOP_LINE = 'Edomae sushi · Ginza · twelve seats, one seating a night'
 
@@ -31,7 +32,12 @@ export default function MenuPage() {
         ← Back
       </Link>
 
-      <MenuExperience videoSrc={VIDEO_SRC} title={SHOP_NAME} subtitle={SHOP_LINE} />
+      <MenuExperience
+        videoSrc={VIDEO_SRC}
+        posterSrc={POSTER_SRC}
+        title={SHOP_NAME}
+        subtitle={SHOP_LINE}
+      />
     </main>
   )
 }

@@ -17,6 +17,13 @@ import { sectionProgress } from '@/lib/scroll-progress'
  */
 export interface SushiIntroProps {
   videoSrc: string
+  /**
+   * A still of the video's opening frame, shown until the decoder paints.
+   * Without it the frame is black while the file buffers, which reads as a
+   * broken page; on a device that refuses to paint the video at all it is
+   * what the visitor is left with instead of nothing.
+   */
+  posterSrc?: string
   title?: string
   subtitle?: string
   /**
@@ -34,6 +41,7 @@ const FONT = 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, Segoe U
 
 export function SushiIntro({
   videoSrc,
+  posterSrc,
   title = '鮨 かねもり',
   subtitle,
   heightVh = 250,
@@ -43,6 +51,45 @@ export function SushiIntro({
   const dimRef = useRef<HTMLDivElement>(null)
   const cueRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLDivElement>(null)
+
+  // iOS Safari will not paint a <video> that has never begun playback.
+  // Assigning currentTime seeks the media, and the seek completes, but the
+  // element renders nothing at all until play() has run once — so on an
+  // iPhone the intro was a black frame while every other part of the route
+  // worked. Starting it and pausing it again is what wakes the decoder; the
+  // scroll stays in charge of the position from then on.
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    let cancelled = false
+
+    const wake = () => {
+      const started = video.play()
+      // jsdom, and any browser without a media stack, returns undefined.
+      if (!started) {
+        video.pause()
+        return
+      }
+      started
+        .then(() => {
+          if (!cancelled) video.pause()
+        })
+        .catch(() => {
+          // Autoplay refused — Low Power Mode does this even to a muted,
+          // inline video. Only a real gesture lifts it, so the listeners
+          // below get another go.
+        })
+    }
+
+    wake()
+    window.addEventListener('touchstart', wake, { once: true, passive: true })
+    window.addEventListener('pointerdown', wake, { once: true })
+    return () => {
+      cancelled = true
+      window.removeEventListener('touchstart', wake)
+      window.removeEventListener('pointerdown', wake)
+    }
+  }, [])
 
   useEffect(() => {
     let rafId = 0
@@ -102,6 +149,7 @@ export function SushiIntro({
         <video
           ref={videoRef}
           src={videoSrc}
+          poster={posterSrc}
           muted
           playsInline
           preload="auto"

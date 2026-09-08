@@ -7,22 +7,16 @@ the shopfront, the set on the counter, then the prices.
 
 ## Getting started
 
-This repository stores its video, HDR and glTF assets in **Git LFS**. Install
-it before cloning, or the three files under `public/` arrive as 133-byte
-pointer stubs and the pages render a failure panel instead of the model:
-
 ```bash
-brew install git-lfs   # or your platform's package
-git lfs install        # once per machine
 git clone https://github.com/iwillcode29/sushi-shop.git
-```
-
-Already cloned without it? `git lfs install && git lfs pull`.
-
-```bash
 npm install
 npm run dev            # http://localhost:3000
 ```
+
+The video, HDR and glTF under `public/` are ordinary git blobs, about 17MB
+between them. They were tracked in Git LFS for a while; Vercel does not
+resolve LFS, so its build shipped the 132-byte pointer stubs as static files
+and every asset 404'd in spirit while returning 200. See `.gitattributes`.
 
 | | |
 |---|---|
@@ -50,7 +44,18 @@ ffmpeg -i input.mp4 -an -c:v libx264 -preset slow -crf 23 -g 1 \
   -pix_fmt yuv420p -movflags +faststart public/video/sushi-counter.mp4
 ```
 
-`-g 1` makes every frame a keyframe and is the part that matters.
+`-g 1` makes every frame a keyframe and is the part that matters. Regenerate
+the poster alongside it:
+
+```bash
+ffmpeg -i public/video/sushi-counter.mp4 -vf scale=1280:-2 -frames:v 1 -q:v 6 \
+  public/video/sushi-counter-poster.jpg
+```
+
+iOS Safari will not paint a `<video>` that has never begun playback — seeks
+complete but nothing renders — so the intro starts the element once and pauses
+it immediately, retrying on the first touch for the case where Low Power Mode
+refuses autoplay outright.
 
 The mapping from scroll position to what each stage shows lives in pure
 functions — `sectionProgress`, `introFrame`, `showcaseFrame` — because the

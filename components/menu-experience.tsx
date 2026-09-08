@@ -17,11 +17,12 @@ import { usePrefersReducedMotion } from '@/lib/use-prefers-reduced-motion'
  */
 export interface MenuExperienceProps {
   videoSrc: string
+  posterSrc?: string
   title?: string
   subtitle?: string
 }
 
-export function MenuExperience({ videoSrc, title, subtitle }: MenuExperienceProps) {
+export function MenuExperience({ videoSrc, posterSrc, title, subtitle }: MenuExperienceProps) {
   const prefersReducedMotion = usePrefersReducedMotion()
 
   return (
@@ -33,7 +34,12 @@ export function MenuExperience({ videoSrc, title, subtitle }: MenuExperienceProp
         stays: it parks on a fixed camera of its own when motion is reduced.
       */}
       {!prefersReducedMotion && (
-        <SushiIntro videoSrc={videoSrc} title={title} subtitle={subtitle} />
+        <SushiIntro
+          videoSrc={videoSrc}
+          posterSrc={posterSrc}
+          title={title}
+          subtitle={subtitle}
+        />
       )}
       <SushiShowcase title={title} subtitle={subtitle} />
       <MenuCard />
