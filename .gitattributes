@@ -1,3 +1,10 @@
-*.mp4 filter=lfs diff=lfs merge=lfs -text
-*.hdr filter=lfs diff=lfs merge=lfs -text
-*.glb filter=lfs diff=lfs merge=lfs -text
+# Deliberately no Git LFS rules here.
+#
+# The video, HDR and glTF under public/ were tracked in LFS for a while. Vercel
+# does not resolve LFS: its build clone skips the smudge filter, so the 132-byte
+# pointer stubs were deployed verbatim as static files. The pages then failed
+# with "THREE.RGBELoader: Bad File Format: bad initial token" — the loader
+# reading the words "version https://git-lfs.github.com/spec/v1" where an
+# image was expected.
+#
+# If you reintroduce LFS, check the deploy target resolves it first.
