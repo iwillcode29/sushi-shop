@@ -17,9 +17,9 @@ import type { LightingMode } from '@/lib/materials'
 export const SHADOW_Y = -0.004
 export const FLOOR_Y = -0.02
 
-/** --color-shell: the page background every route but /menu sits on. */
-export const SHELL_FOG = '#efe7dc'
-export const SHELL_FLOOR = '#7d6b53'
+/** --color-paper: the washi every route but /menu sits on. */
+export const SHELL_FOG = '#e4d2b8'
+export const SHELL_FLOOR = '#7f6a4c'
 
 /**
  * The studio IBL, served from this origin.
@@ -38,7 +38,7 @@ type SceneEnvProps = {
   /**
    * The colour the floor's far reach dissolves into. It has to match the page
    * behind the canvas or the horizon reads as a band of the wrong colour
-   * across the bottom of the frame — which is exactly what the shell default
+   * across the bottom of the frame — which is exactly what the washi default
    * does on a dark route.
    */
   fogColor?: string
@@ -54,7 +54,7 @@ type SceneEnvProps = {
   floorColor?: string
   shadowColor?: string
   /**
-   * The rig's levels. The defaults are tuned to the bright cream page; left
+   * The rig's levels. The defaults are tuned to the bright washi page; left
    * at those, a near-black floor is lifted to mid grey.
    */
   ambientIntensity?: number
@@ -71,7 +71,7 @@ export function SceneEnv({
   fogNear = 10,
   fogFar = 30,
   floorColor = SHELL_FLOOR,
-  shadowColor = '#1c1410',
+  shadowColor = '#241f14',
   ambientIntensity = 0.6,
   keyIntensity = 1.4,
   keyColor = '#ffffff',
@@ -124,8 +124,8 @@ export function SceneEnv({
       />
 
       {/*
-        Fog matches the page background behind the canvas — --color-shell
-        (#efe7dc) by default, see SHELL_FOG — and fades the plane's far reach
+        Fog matches the page background behind the canvas — --color-paper
+        (#e4d2b8) by default, see SHELL_FOG — and fades the plane's far reach
         into it, so it reads as a horizon dissolving into the page. near/far
         are set well beyond the orbit's maxDistance (9), so the model and the
         floor immediately around it are never inside the fogged band at any

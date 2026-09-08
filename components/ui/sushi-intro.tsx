@@ -35,14 +35,18 @@ export interface SushiIntroProps {
   heightVh?: number
 }
 
-const SUMI = '#0d0b0a'
-const PAPER = '#f4efe7'
-const FONT = 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'
+const SUMI = '#171a10'
+const PAPER = '#f0e2ca'
+const SANS = 'var(--font-archivo), ui-sans-serif, system-ui, sans-serif'
+/* The shop's name is Japanese, so it is set in the reader's own mincho
+   rather than in a latin display face pressed into service — see
+   --font-mincho in app/globals.css for why no webfont is loaded for it. */
+const MINCHO = "'Hiragino Mincho ProN', 'Yu Mincho', YuMincho, 'Shippori Mincho', serif"
 
 export function SushiIntro({
   videoSrc,
   posterSrc,
-  title = '鮨 かねもり',
+  title = '鮨 ねこもり',
   subtitle,
   heightVh = 250,
 }: SushiIntroProps) {
@@ -171,7 +175,7 @@ export function SushiIntro({
             position: 'absolute',
             inset: 0,
             background:
-              'radial-gradient(ellipse 78% 72% at 50% 46%, transparent 42%, rgba(13,11,10,0.72) 100%)',
+              'radial-gradient(ellipse 78% 72% at 50% 46%, transparent 42%, rgba(23,26,16,0.72) 100%)',
             pointerEvents: 'none',
           }}
         />
@@ -179,14 +183,17 @@ export function SushiIntro({
         {/* The shopfront is lit from the top by a row of lanterns and from
             the bottom by the entrance, which is exactly where the title and
             the scroll cue sit. Both bands are dark enough to carry text
-            without reading as panels over the footage. */}
+            without reading as panels over the footage. The top band reaches
+            to 42% rather than 30% because the title block is now three
+            lines deep — the shop's own illuminated signboard sits right
+            under the wordmark, and the Japanese line was landing on it. */}
         <div
           aria-hidden="true"
           style={{
             position: 'absolute',
             inset: 0,
             background:
-              'linear-gradient(180deg, rgba(13,11,10,0.72) 0%, rgba(13,11,10,0) 30%, rgba(13,11,10,0) 76%, rgba(13,11,10,0.7) 100%)',
+              'linear-gradient(180deg, rgba(23,26,16,0.76) 0%, rgba(23,26,16,0.34) 26%, rgba(23,26,16,0) 42%, rgba(23,26,16,0) 76%, rgba(23,26,16,0.7) 100%)',
             pointerEvents: 'none',
           }}
         />
@@ -201,7 +208,7 @@ export function SushiIntro({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 8,
+            gap: 10,
             padding: '0 20px',
             pointerEvents: 'none',
           }}
@@ -209,17 +216,39 @@ export function SushiIntro({
           {/*
             A title card, not the route's heading: it fades out with the
             picture and is dropped entirely under reduced motion. The h1
-            lives on the showcase below, which is on every path.
+            lives on the showcase below, which is on every path — which is
+            why the wordmark here is decorative (alt=""), with the shop's
+            name beneath it as the readable text.
+
+            The brush is printed in paper ink rather than sumi (see
+            sushimeow-wordmark-paper.webp): the same strokes, the same
+            texture, the pigment swapped for the ground it is landing on.
+            A plain <img>, not next/image, because everything in this
+            component is laid out in inline styles against an absolutely
+            positioned stage and the wrapper next/image adds fights that.
           */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/sushimeow-wordmark-paper.webp"
+            alt=""
+            aria-hidden="true"
+            width={763}
+            height={290}
+            style={{
+              width: 'min(26rem, 62vw)',
+              height: 'auto',
+              filter: 'drop-shadow(0 6px 40px rgba(0,0,0,0.75))',
+            }}
+          />
           <span
             style={{
-              fontFamily: FONT,
-              fontWeight: 700,
-              fontSize: 'clamp(26px, 5vw, 52px)',
-              letterSpacing: '0.1em',
+              fontFamily: MINCHO,
+              fontWeight: 500,
+              fontSize: 'clamp(15px, 1.9vw, 21px)',
+              letterSpacing: '0.34em',
               color: PAPER,
               textAlign: 'center',
-              textShadow: '0 6px 40px rgba(0,0,0,0.8)',
+              textShadow: '0 4px 28px rgba(0,0,0,0.85)',
             }}
           >
             {title}
@@ -227,11 +256,14 @@ export function SushiIntro({
           {subtitle && (
             <span
               style={{
-                fontFamily: FONT,
+                fontFamily: SANS,
                 fontSize: 'clamp(10px, 1.1vw, 12px)',
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                color: 'rgba(244, 239, 231, 0.72)',
+                // Wraps on its own terms rather than running to the
+                // viewport's padding edge on a narrow screen.
+                maxWidth: '34ch',
+                color: 'rgba(240, 226, 202, 0.72)',
                 textAlign: 'center',
                 textShadow: '0 2px 18px rgba(0,0,0,0.9)',
               }}
@@ -252,11 +284,11 @@ export function SushiIntro({
             flexDirection: 'column',
             alignItems: 'center',
             gap: 10,
-            fontFamily: FONT,
+            fontFamily: SANS,
             fontSize: 10.5,
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
-            color: 'rgba(244, 239, 231, 0.72)',
+            color: 'rgba(240, 226, 202, 0.72)',
             textShadow: '0 2px 16px rgba(0,0,0,0.9)',
             pointerEvents: 'none',
           }}

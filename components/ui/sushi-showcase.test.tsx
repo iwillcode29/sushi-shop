@@ -32,8 +32,8 @@ vi.mock('@/components/sushi-model', () => ({
 }))
 
 vi.mock('@/components/scene-env', () => ({
-  SHELL_FOG: '#efe7dc',
-  SHELL_FLOOR: '#7d6b53',
+  SHELL_FOG: '#e4d2b8',
+  SHELL_FLOOR: '#7f6a4c',
   SceneEnv: (props: Record<string, unknown>) => (
     <div data-testid="scene-env" data-fog={String(props.fogColor)} />
   ),
@@ -66,8 +66,8 @@ describe('SushiShowcase', () => {
   // The intro's title card is transient and is skipped entirely under
   // reduced motion, so the route's one h1 lives here, with the subject.
   it('names the shop as the page heading', () => {
-    render(<SushiShowcase title="鮨 かねもり" />)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('鮨 かねもり')
+    render(<SushiShowcase title="鮨 ねこもり" />)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('鮨 ねこもり')
   })
 
   it('mounts the sushi model', () => {
@@ -87,7 +87,7 @@ describe('SushiShowcase', () => {
   // is a cream horizon across the bottom of a black frame.
   it('fogs the scene into the dark route it sits on', () => {
     render(<SushiShowcase />)
-    expect(screen.getByTestId('scene-env')).toHaveAttribute('data-fog', '#0d0b0a')
+    expect(screen.getByTestId('scene-env')).toHaveAttribute('data-fog', '#171a10')
   })
 
   it('says so plainly when the browser cannot open a WebGL context', () => {
@@ -129,8 +129,8 @@ describe('SushiShowcase', () => {
   it('keeps naming the shop even when the scene fails', () => {
     model.shouldThrow = true
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    render(<SushiShowcase title="鮨 かねもり" />)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('鮨 かねもり')
+    render(<SushiShowcase title="鮨 ねこもり" />)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('鮨 ねこもり')
   })
 
   it('renders on every frame while it is on screen', () => {

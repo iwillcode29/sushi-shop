@@ -1,53 +1,137 @@
 @import "tailwindcss";
 
+/*
+  SUSHIMEOW — a woodblock print on washi.
+
+  Every value below was sampled out of the logo in public/brand/, not chosen
+  for the web: `paper` is the print's own stock, `sumi` is the ink its brush
+  strokes are drawn in, `salmon` is the neta on the cat's back, and `shu` is
+  the hanko in the top-right corner. That is why the keyed-out artwork sits on
+  the page without a visible edge — the page is the same paper.
+*/
+@theme {
+  --color-paper: #e4d2b8;
+  /* The print is lit from its middle. Backgrounds behind the artwork lift to
+     this so the two grounds meet without a seam. */
+  --color-paper-lit: #f0e2ca;
+  --color-paper-deep: #d3bd9c;
+  --color-sumi: #2c3123;
+  /*
+     Muted ink, not faded ink. Small tracked-caps labels used to be
+     text-sumi at 45% alpha, which measured 2.3:1 on paper — illegible, and
+     the fade was doing hierarchy work that size and letterspacing already
+     do. This is a colour that reads as secondary and still clears 4.5:1 on
+     both paper and the recessed band (5.4:1 and 5.0:1).
+  */
+  --color-sumi-soft: #4e5340;
+  --color-salmon: #e79468;
+  --color-salmon-deep: #c66f42;
+  /* Pulled down from the print's #a83f22, which measured 4.2:1 on paper
+     and 3.9:1 on the band — under AA at the 9px it is set at. The hanko
+     artwork keeps its own sampled vermilion; this token is for type. */
+  --color-shu: #96351b;
+  /* The /menu route's ground: the same ink, taken down to a lit counter. */
+  --color-counter: #171a10;
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  /*
+    No webfont for the Japanese. A mincho subset is megabytes, and every
+    platform this page runs on already ships a good one — a reader on a
+    Japanese system gets the face they read everything else in.
+  */
+  --font-mincho: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Shippori Mincho", serif;
+
+  --text-title: clamp(1.5rem, 3.1vw, 2.4rem);
+  --text-lede: clamp(0.9375rem, 0.9vw + 0.6rem, 1.0625rem);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/*
+  The fibre in the paper, drawn rather than downloaded: an SVG turbulence
+  tile, stitched so it repeats without a seam and resolution-independent at
+  any zoom. feColorMatrix throws the noise's own colour away and re-emits it
+  as sumi at a fraction of its alpha, so the speckle is the ink of the print
+  settling into the stock rather than grey dirt over it.
 
-@media (prefers-color-scheme: dark) {
+  Two octaves at a high base frequency, not four at a low one: the extra
+  octaves are what put the large soft blotches in, and at this contrast they
+  read as uneven lighting across a section rather than as fibre.
+*/
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --washi: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='w' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.172 0 0 0 0 0.192 0 0 0 0 0.137 0.22 0 0 0 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23w)'/%3E%3C/svg%3E");
+    --washi-lit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='l' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.941 0 0 0 0 0.886 0 0 0 0 0.792 0.15 0 0 0 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23l)'/%3E%3C/svg%3E");
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-paper);
+  background-image: var(--washi);
+  background-size: 160px 160px;
+  color: var(--color-sumi);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
 }
 
-@theme inline {
-  --color-shell: #efe7dc;
-  --color-ink: #211a13;
+/* Opt-in for sections that paint their own ground and still want the fibre. */
+.washi {
+  background-image: var(--washi);
+  background-size: 160px 160px;
 }
 
-html {
-  scroll-behavior: smooth;
+/*
+  The same fibre for the dark route. Sumi speckle over near-black is nothing
+  at all, so this one re-emits the noise as paper — the stock showing through
+  the ink rather than the ink settling into the stock.
+*/
+.washi-lit {
+  background-image: var(--washi-lit);
+  background-size: 160px 160px;
 }
 
 /*
   The menu route is a dark, full-bleed scroll sequence. Without this the
-  cream body colour above shows through the overscroll bounce at both ends
-  of the page, which reads as the layout having come apart. Keyed off a
-  marker on the route's own <main> because only the root layout renders
-  <body>, so a route cannot set a class on it.
+  paper colour above shows through the overscroll bounce at both ends of the
+  page, which reads as the layout having come apart. Keyed off a marker on
+  the route's own <main> because only the root layout renders <body>, so a
+  route cannot set a class on it.
 */
-body:has([data-route='menu']) {
-  background: #0d0b0a;
+body:has([data-route="menu"]) {
+  background-color: var(--color-counter);
+  background-image: none;
+  color-scheme: dark;
 }
 
-body {
-  background: var(--color-shell);
-  color: var(--color-ink);
+/*
+  A pressed rule, not a border: the hairline of paper-lit under the ink line
+  is the debossed edge a letterpress leaves. Used to separate bands without
+  drawing a box round anything.
+*/
+.rule {
+  border: 0;
+  height: 0;
+  border-top: 1px solid color-mix(in oklab, var(--color-sumi) 18%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-paper-lit) 70%, transparent);
+}
+
+/*
+  The hanko never sits square to the page — a stamp pressed by hand does not.
+  Two values so a pair of them on one screen do not read as a repeated
+  graphic.
+*/
+.stamp {
+  rotate: -4deg;
+}
+.stamp-alt {
+  rotate: 3.5deg;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 @media (prefers-reduced-motion: reduce) {

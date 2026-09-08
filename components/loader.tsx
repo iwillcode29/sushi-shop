@@ -21,11 +21,13 @@ export function Loader() {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={value}
-        className="h-px w-full overflow-hidden bg-black/10"
+        className="bg-sumi/12 h-px w-full overflow-hidden"
       >
         <div
           data-testid="loader-fill"
-          className="h-full bg-black/60 transition-[width] duration-200 ease-out"
+          // The hanko's vermilion, which is the only place on the page a
+          // line of it appears — a load that is happening reads instantly.
+          className="bg-shu h-full transition-[width] duration-200 ease-out"
           style={{ width: `${value}%` }}
         />
       </div>

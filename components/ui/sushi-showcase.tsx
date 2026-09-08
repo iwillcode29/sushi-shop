@@ -41,10 +41,12 @@ export interface SushiShowcaseProps {
   heightVh?: number
 }
 
-const SUMI = '#0d0b0a'
-const COUNTER = '#120d0a'
-const PAPER = '#f4efe7'
-const FONT = 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'
+const SUMI = '#171a10'
+const COUNTER = '#1b1f12'
+const PAPER = '#f0e2ca'
+const SANS = 'var(--font-archivo), ui-sans-serif, system-ui, sans-serif'
+/* See sushi-intro for why the Japanese is set in a system mincho. */
+const MINCHO = "'Hiragino Mincho ProN', 'Yu Mincho', YuMincho, 'Shippori Mincho', serif"
 
 /**
  * A visitor who prefers reduced motion gets no camera move, so the section
@@ -71,12 +73,17 @@ function StagePanel({ children }: { children: React.ReactNode }) {
         gap: 16,
         padding: '0 24px',
         textAlign: 'center',
-        color: 'rgba(244, 239, 231, 0.7)',
-        fontFamily: FONT,
+        color: 'rgba(240, 226, 202, 0.7)',
+        fontFamily: SANS,
       }}
     >
-      <span aria-hidden="true" style={{ fontSize: 44 }}>
-        🍣
+      {/* The character, not the emoji: an emoji is drawn by the platform in
+          its own palette and lands on a hand-set page as a sticker. */}
+      <span
+        aria-hidden="true"
+        style={{ fontFamily: MINCHO, fontSize: 46, color: '#e79468', letterSpacing: '0.1em' }}
+      >
+        鮨
       </span>
       <p style={{ maxWidth: '32ch', fontSize: 13, lineHeight: 1.7 }}>{children}</p>
     </div>
@@ -111,7 +118,7 @@ function ScrollCamera({
 }
 
 export function SushiShowcase({
-  title = '鮨 かねもり',
+  title = '鮨 ねこもり',
   subtitle,
   heightVh = 220,
 }: SushiShowcaseProps) {
@@ -195,7 +202,7 @@ export function SushiShowcase({
                 shadowColor="#000000"
                 ambientIntensity={0.14}
                 keyIntensity={1.35}
-                keyColor="#ffc389"
+                keyColor="#f7b276"
                 environmentIntensity={0.26}
               />
 
@@ -236,13 +243,29 @@ export function SushiShowcase({
             pointerEvents: 'none',
           }}
         >
+          {/*
+            The hanko, not the wordmark: the intro's title card above is
+            already the wordmark, and repeating it here would make the two
+            stages read as the same screen. The stamp is the brand's other
+            mark and needs no reversed print — its own vermilion carries on
+            a dark ground.
+          */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/sushimeow-hanko.webp"
+            alt=""
+            aria-hidden="true"
+            width={107}
+            height={170}
+            style={{ width: 22, height: 'auto', rotate: '-4deg', marginBottom: 6 }}
+          />
           <h1
             style={{
               margin: 0,
-              fontFamily: FONT,
-              fontWeight: 700,
-              fontSize: 'clamp(24px, 4vw, 44px)',
-              letterSpacing: '0.1em',
+              fontFamily: MINCHO,
+              fontWeight: 500,
+              fontSize: 'clamp(26px, 4.2vw, 48px)',
+              letterSpacing: '0.16em',
               color: PAPER,
               textAlign: 'center',
               textShadow: '0 6px 40px rgba(0,0,0,0.85)',
@@ -253,11 +276,14 @@ export function SushiShowcase({
           {subtitle && (
             <span
               style={{
-                fontFamily: FONT,
+                fontFamily: SANS,
                 fontSize: 'clamp(10px, 1.1vw, 12px)',
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                color: 'rgba(244, 239, 231, 0.55)',
+                // Wraps on its own terms rather than running to the
+                // viewport's padding edge on a narrow screen.
+                maxWidth: '34ch',
+                color: 'rgba(240, 226, 202, 0.55)',
                 textAlign: 'center',
               }}
             >

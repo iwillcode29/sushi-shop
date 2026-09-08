@@ -27,10 +27,10 @@ describe('MenuPage', () => {
 
   it('names the shop as the page heading', () => {
     render(<MenuPage />)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('鮨 かねもり')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('鮨 ねこもり')
   })
 
-  // globals.css paints the body cream. On a route that is dark end to end
+  // globals.css paints the body washi. On a route that is dark end to end
   // that colour shows through the overscroll bounce at the top and bottom of
   // the page; the marker is what the stylesheet keys the override off.
   it('marks itself as the dark route for the stylesheet to key off', () => {
@@ -39,7 +39,7 @@ describe('MenuPage', () => {
   })
 
   it('tells the browser chrome to match the route, not the site default', () => {
-    expect(viewport.themeColor).toBe('#0d0b0a')
+    expect(viewport.themeColor).toBe('#171a10')
   })
 
   it('offers a way back to the rest of the site', () => {

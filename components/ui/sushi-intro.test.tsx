@@ -71,8 +71,8 @@ describe('SushiIntro', () => {
   })
 
   it('names the shop over the footage', () => {
-    render(<SushiIntro videoSrc="/v.mp4" title="鮨 かねもり" />)
-    expect(screen.getByText('鮨 かねもり')).toBeInTheDocument()
+    render(<SushiIntro videoSrc="/v.mp4" title="鮨 ねこもり" />)
+    expect(screen.getByText('鮨 ねこもり')).toBeInTheDocument()
   })
 
   // Full-bleed footage with no chrome gives no hint that scrolling does
