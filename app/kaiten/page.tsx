@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { KaitenOrder } from '@/components/kaiten-order'
+import { chromeDelay } from '@/lib/kaiten-opening'
 
 export const metadata: Metadata = {
   title: '回転 — Sushimeow',
@@ -28,26 +29,15 @@ export default function KaitenPage() {
       <KaitenOrder />
 
       <h1 className="sr-only">The belt</h1>
+      {/* The furniture comes in last, and quietly. The counter is the event;
+          a way out of it is not — see 開店 in app/globals.css. */}
       <Link
         href="/"
-        className="text-sumi-soft hover:text-sumi decoration-salmon-deep/60 absolute top-6 left-6 z-10 font-sans text-[0.6rem] tracking-[0.3em] uppercase underline-offset-[5px] transition-colors hover:underline"
+        style={{ animationDelay: `${chromeDelay(0)}s` }}
+        className="kaiten-rise text-sumi-soft hover:text-sumi decoration-salmon-deep/60 absolute top-6 left-6 z-10 font-sans text-[0.6rem] tracking-[0.3em] uppercase underline-offset-[5px] transition-colors hover:underline"
       >
         ← Back
       </Link>
-
-      {/* The pieces are Freepik's under their free licence, which asks for the
-          credit to be on the page rather than only in the repo. */}
-      <p className="text-sumi-soft/70 absolute right-6 bottom-5 z-10 font-sans text-[0.55rem] tracking-[0.18em]">
-        Sushi designed by{' '}
-        <a
-          href="https://www.freepik.com"
-          rel="noopener noreferrer"
-          target="_blank"
-          className="hover:text-sumi decoration-salmon-deep/50 underline-offset-[4px] transition-colors hover:underline"
-        >
-          macrovector / Freepik
-        </a>
-      </p>
     </main>
   )
 }

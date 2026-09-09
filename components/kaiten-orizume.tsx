@@ -1,5 +1,6 @@
 'use client'
 
+import { KaitenRim, RIM as PIECE_RIM } from '@/components/kaiten-rim'
 import {
   alongBelt,
   BELT_W,
@@ -18,8 +19,8 @@ import type { Compartment, OrizumeTimeline } from '@/lib/orizume'
   the page, and a box in this one is an object on the same counter as the
   belt. It arrives along the belt's travel vector, for the same reason.
 
-  The pieces are the exception, as they are on the belt: a nigiri put through
-  the shear is a nigiri lying on its side, so they are placed in page space at
+  The pieces are the exception, as they are on the belt: a cat put through
+  the shear is a cat lying on its side, so they are placed in page space at
   the projection of the point in the box they are sitting on.
 */
 
@@ -50,12 +51,19 @@ const TRAY_X0 = BOX_X0 + 100
  * How tall a piece stands in its compartment.
  *
  * Sized to the compartment rather than fixed: a two-kind order gets two big
- * divisions and a piece that fills one, an eight-kind order gets eight small
- * ones and pieces to match. At a fixed 62 the two-kind box was a pair of
- * stamps adrift in a black tray.
+ * divisions and a piece that fills one, a five-kind order gets five small ones
+ * and pieces to match. At a fixed 62 the two-kind box was a pair of stamps
+ * adrift in a black tray.
+ *
+ * The last limit is on how wide the piece comes out rather than how tall,
+ * which is why it needs the piece's own proportions: what must not happen is a
+ * piece lying over the shikiri beside it, and width is the dimension that does
+ * that. At the seven-to-five the cats are drawn at it works out the same as
+ * the flat 0.4 of the division this used to cap height at; a set drawn longer
+ * and lower would have overhung it.
  */
-function pieceHeight(cellW: number, cellH: number): number {
-  return Math.min(96, cellH * 0.62, cellW * 0.4)
+function pieceHeight(cellW: number, cellH: number, ratio: number): number {
+  return Math.min(96, cellH * 0.62, (cellW * 0.56) / ratio)
 }
 
 /** Where the box comes in from, along the belt. */
@@ -138,6 +146,16 @@ export function KaitenOrizume({ compartments, timing, fitted, className }: Kaite
       )} pieces`}
     >
       <defs>
+        {/*
+          The same paper edge the belt gives its riders, at half the dilation:
+          a cat in a compartment stands somewhere between a quarter and half
+          the height it does on the belt, and a rim that did not come down
+          with it read as a border drawn round a stamp. Half is a compromise
+          across the range — the box packs its pieces to fit the order, and a
+          filter cannot take its radius from the thing it is filtering.
+        */}
+        <KaitenRim id="orizume-rim" radius={PIECE_RIM / 2} />
+
         <filter id="orizume-cast" x="-25%" y="-60%" width="150%" height="240%">
           <feGaussianBlur stdDeviation="13" />
         </filter>
@@ -284,7 +302,7 @@ export function KaitenOrizume({ compartments, timing, fitted, className }: Kaite
             const at = cell(compartment.x, compartment.w)
             const piece = compartment.line.piece
             const cellH = compartment.h * trayH
-            const h = pieceHeight(at.x1 - at.x0, cellH)
+            const h = pieceHeight(at.x1 - at.x0, cellH, piece.w / piece.h)
             const w = (h * piece.w) / piece.h
             // The slot is a fraction of its own compartment, so the row it is
             // in has to be added back before it means anything in the tray.
@@ -296,6 +314,7 @@ export function KaitenOrizume({ compartments, timing, fitted, className }: Kaite
             return (
               <image
                 key={`${piece.id}-${index}`}
+                filter="url(#orizume-rim)"
                 className="orizume-lay"
                 href={`/sushi/${piece.id}.webp`}
                 width={w}

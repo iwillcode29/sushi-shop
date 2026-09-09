@@ -74,11 +74,11 @@ describe('packOrizume', () => {
   })
 
   it('keeps the compartments in the order the pieces were taken', () => {
-    const cells = packOrizume([line(3), line(0), line(6)])
+    const cells = packOrizume([line(3), line(0), line(4)])
     expect(cells.map((cell) => cell.line.piece.id)).toEqual([
       KAITEN_PIECES[3].id,
       KAITEN_PIECES[0].id,
-      KAITEN_PIECES[6].id,
+      KAITEN_PIECES[4].id,
     ])
   })
 

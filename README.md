@@ -130,13 +130,37 @@ every platform here already ships a good one.
 - Logo and brand marks (`public/brand/`, `app/favicon.ico`,
   `app/apple-icon.jpg`, `app/opengraph-image.jpg`) derived from the
   commissioned SUSHIMEOW artwork.
-- Sushi pieces on `/kaiten` (`public/sushi/`) cut out of the *asia food icon
-  set* by macrovector / Freepik. The set ships an `.eps` and a 4500x4500 `.jpg`
-  of the same sheet; these came off the JPEG, matted by flooding the white and
-  the printed drop shadow away from the border rather than keying white
-  globally, which would punch through the rice. Freepik's free licence
-  requires the credit to appear on the site, and it does, at the foot of the
-  route.
+- The cats on `/kaiten` (`public/sushi/`) cut out of a sheet of sixteen
+  generated from the SUSHIMEOW artwork — a black cat padding along with a
+  piece of sushi strapped to its back, one per neta, four rows of four. They
+  replace an *asia food icon set* by macrovector / Freepik, whose licence
+  wanted a credit at the foot of the route; nothing on the page needs one now.
+
+  The sheet is on white, so unlike bare sushi on printed paper there is a key
+  to pull: the ground is flooded from each cell's border rather than keyed by
+  colour, because the rice and the cats' collars are the same white as the
+  paper and keying white globally punches through both. Whatever the flood
+  cannot reach stays part of the piece, which is what saves the whites of an
+  eye and the rice under a scallop.
+
+  Nothing is matted into the files. The rim the cats carry — the print's paper
+  put back round the silhouette, because a black cat loses its contour to a
+  sumi belt and to the lacquer of the box alike — is a filter on the routes
+  instead, so it is one dilation of the alpha rather than sixteen baked
+  borders, and its colour and its opacity are a stylesheet's business. See
+  `components/kaiten-rim` and `.kaiten-rim` in `app/globals.css`.
+
+  The sheet and the knife are both in `tools/`: `python3 tools/cut-cats.py`
+  cuts it again, `--check` says whether what is committed still matches. The
+  order the pieces come past on the belt is the order they sit on the sheet,
+  and `lib/kaiten-pieces` — which carries the prices — has to agree with it.
+
+  They come out at seven to five, near enough what the previous set was drawn
+  at, so the ride kept its spacing: one and a half slat pitches between cats.
+  A cat stands 112 belt units, though, where drawn sushi stood at 78 — at that
+  height they read as a pattern printed on the belt rather than as animals
+  walking along it.
+
 - Studio HDR (`public/hdr/`) from
   [pmndrs/drei-assets](https://github.com/pmndrs/drei-assets) @ `456060a`,
   vendored rather than fetched from a CDN at runtime.

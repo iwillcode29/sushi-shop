@@ -48,11 +48,23 @@ export default function Home() {
             Authentic <span className="text-salmon px-0.5">•</span> Japanese{' '}
             <span className="text-salmon px-0.5">•</span> Fresh
           </p>
+          {/*
+            Set as the route's one primary action, in the same idiom as the
+            till's Settle button — a mincho glyph against tracked caps. Filled
+            rather than outlined because it is the only way on from here, and
+            filled in salmon rather than the till's sumi: sumi (#2c3123) and
+            the counter this footer sits on (#171a10) are a hair apart in
+            value, so a sumi button here would read as a hole rather than as
+            something to press.
+          */}
           <Link
             href="/kaiten"
-            className="text-salmon decoration-salmon/40 group font-sans text-[0.6rem] tracking-[0.3em] uppercase underline-offset-[6px] hover:underline"
+            className="bg-salmon text-sumi hover:bg-salmon-deep focus-visible:outline-paper-lit group mt-1 flex items-center gap-3 rounded-md px-6 py-3 font-sans text-[0.6rem] tracking-[0.3em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
-            Take a seat at the belt{' '}
+            <span aria-hidden="true" className="font-mincho text-[0.85rem] tracking-normal normal-case">
+              回転
+            </span>
+            Take a seat at the belt
             <span
               aria-hidden="true"
               className="inline-block transition-transform duration-300 group-hover:translate-x-1"

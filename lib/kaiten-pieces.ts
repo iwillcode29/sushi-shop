@@ -1,5 +1,5 @@
 /**
- * One kind of sushi on the belt.
+ * One cat on the belt, and what it is carrying.
  *
  * `w`/`h` are the asset's own pixel dimensions. They are recorded here rather
  * than measured because the belt lays every piece out before its file has
@@ -18,22 +18,35 @@ export interface KaitenPiece {
 }
 
 /**
- * The eight, in the order they come past. Nigiri and rolls alternate so the
- * silhouette changes from one piece to the next, and there are eight because
- * that is the length the belt's loop is built on — see components/kaiten-belt.
+ * The sixteen, in the order they come past — the order they sit on the sheet
+ * they were cut from, four rows of four, read left to right.
+ *
+ * Sixteen because that is what the artwork carries, and the belt's loop is
+ * built on however many there are: at one and a half slat pitches apart the
+ * sequence is 3360 units long against a frame 1400 across, so a visitor sees
+ * six or seven of them at a time and waits out a full minute of belt before
+ * the first cat comes round again.
  *
  * Where a piece is also on the counter's own list, it is priced from there:
  * the same neta cannot cost one thing on the menu and another on the belt.
  */
 export const KAITEN_PIECES: KaitenPiece[] = [
-  { id: 'maguro', name: 'Maguro', nameJa: 'マグロ', price: 380, w: 512, h: 354 },
-  { id: 'tekkamaki', name: 'Tekkamaki', nameJa: '鉄火巻', price: 320, w: 454, h: 505 },
-  { id: 'sake', name: 'Sake', nameJa: 'サーモン', price: 320, w: 512, h: 353 },
-  { id: 'ikura', name: 'Ikura', nameJa: 'イクラ', price: 480, w: 439, h: 512 },
-  { id: 'ebi', name: 'Ebi', nameJa: 'エビ', price: 280, w: 512, h: 321 },
-  { id: 'futomaki', name: 'Futomaki', nameJa: '太巻', price: 380, w: 454, h: 505 },
-  { id: 'tamago', name: 'Tamago', nameJa: '玉子', price: 220, w: 512, h: 363 },
-  { id: 'temaki', name: 'Temaki', nameJa: '手巻', price: 420, w: 512, h: 366 },
+  { id: 'sake', name: 'Sake', nameJa: 'サーモン', price: 320, w: 251, h: 177 },
+  { id: 'akami', name: 'Akami', nameJa: '赤身', price: 380, w: 249, h: 178 },
+  { id: 'tamago', name: 'Tamago', nameJa: '玉子', price: 220, w: 249, h: 178 },
+  { id: 'ikura', name: 'Ikura', nameJa: 'イクラ', price: 480, w: 248, h: 177 },
+  { id: 'unagi', name: 'Unagi', nameJa: 'ウナギ', price: 560, w: 252, h: 180 },
+  { id: 'hotate', name: 'Hotate', nameJa: 'ホタテ', price: 420, w: 251, h: 181 },
+  { id: 'kani', name: 'Kani', nameJa: 'カニ', price: 320, w: 250, h: 180 },
+  { id: 'amaebi', name: 'Amaebi', nameJa: '甘エビ', price: 420, w: 261, h: 180 },
+  { id: 'saba', name: 'Saba', nameJa: 'サバ', price: 300, w: 252, h: 179 },
+  { id: 'tako', name: 'Tako', nameJa: 'タコ', price: 320, w: 251, h: 179 },
+  { id: 'hamachi', name: 'Hamachi', nameJa: 'ハマチ', price: 360, w: 252, h: 179 },
+  { id: 'negitoro', name: 'Negitoro', nameJa: 'ネギトロ', price: 420, w: 250, h: 179 },
+  { id: 'ebi', name: 'Ebi', nameJa: 'エビ', price: 280, w: 252, h: 178 },
+  { id: 'gyu', name: 'Gyu', nameJa: '牛', price: 580, w: 252, h: 177 },
+  { id: 'kappamaki', name: 'Kappamaki', nameJa: 'かっぱ巻', price: 220, w: 251, h: 177 },
+  { id: 'tekkamaki', name: 'Tekkamaki', nameJa: '鉄火巻', price: 320, w: 252, h: 178 },
 ]
 
 /** The piece in slot `i`, counting either way from the first one. */

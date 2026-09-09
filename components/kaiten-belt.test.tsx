@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { KAITEN_GEOMETRY, KaitenBelt } from '@/components/kaiten-belt'
+import { KAITEN_PIECES } from '@/lib/kaiten-pieces'
 
 // Resolved off the project root, not import.meta.url: under the jsdom
 // environment that is not a file: URL and readFileSync refuses it.
@@ -115,21 +116,23 @@ describe('KaitenBelt', () => {
     expect(Number(surface?.getAttribute('x')) + Number(surface?.getAttribute('width'))).toBeGreaterThan(1400)
   })
 
-  // The pieces travel by eight slots and start over. A jump of one slot would
-  // land every piece where its neighbour was, so the loop only closes if the
-  // sequence is exactly as long as the jump — and if the strip is seeded a
-  // full sequence to the left of the first slot the frame can show.
+  // The pieces travel by a whole sequence of slots and start over. A jump of
+  // one slot would land every piece where its neighbour was, so the loop only
+  // closes if the sequence is exactly as long as the jump — and if the strip
+  // is seeded a full sequence to the left of the first slot the frame can show.
   it('carries a whole sequence of pieces and repeats on that sequence', () => {
     const { container } = render(<KaitenBelt />)
     const hrefs = [...container.querySelectorAll('.kaiten-ride image')].map((n) =>
       n.getAttribute('href'),
     )
+    const sequence = KAITEN_PIECES.length
     const distinct = new Set(hrefs)
 
-    expect(distinct.size).toBe(8)
-    expect(hrefs.length).toBeGreaterThan(distinct.size * 2)
-    for (let i = 0; i + 8 < hrefs.length; i++) {
-      expect(hrefs[i + 8]).toBe(hrefs[i])
+    expect(distinct.size).toBe(sequence)
+    // Longer than the sequence, or the loop would have nothing to hand on to.
+    expect(hrefs.length).toBeGreaterThan(sequence)
+    for (let i = 0; i + sequence < hrefs.length; i++) {
+      expect(hrefs[i + sequence]).toBe(hrefs[i])
     }
   })
 
@@ -138,10 +141,9 @@ describe('KaitenBelt', () => {
     const xs = [...container.querySelectorAll('.kaiten-ride image')].map((n) =>
       Number(n.getAttribute('x')),
     )
-    // Eight slots of 210 is the distance the loop travels; everything inside
-    // the frame at the end of a cycle has to have been on the strip at its
-    // start.
-    expect(Math.min(...xs)).toBeLessThan(-8 * 210)
+    // The loop travels one whole sequence of slots; everything inside the
+    // frame at the end of a cycle has to have been on the strip at its start.
+    expect(Math.min(...xs)).toBeLessThan(-KAITEN_GEOMETRY.rideLoop)
     expect(Math.max(...xs)).toBeGreaterThan(1400)
   })
 

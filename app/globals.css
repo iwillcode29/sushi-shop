@@ -188,39 +188,74 @@ html {
 
 /*
   The pieces on the belt. Two animations for one movement: the pieces
-  themselves travel in page space, because a nigiri put through the belt
-  matrix is a nigiri lying on its side, while the shadows they cast travel in
+  themselves travel in page space, because a cat put through the belt
+  matrix is a cat lying on its side, while the shadows they cast travel in
   belt space, where a circle is already the right ellipse. Same distance, same
   duration, so they never come apart.
 
-  RIDE_LOOP is eight slots of 210 belt units. At the belt's own 140 units per
-  2.8s that is 33.6s, and the vertical component of the page-space leg is
-  0.22 x 1680 — the pieces have to climb the same rake the slats do.
+  RIDE_LOOP is sixteen slots of 210 belt units. At the belt's own 140 units per
+  2.8s that is 67.2s, and the vertical component of the page-space leg is
+  0.22 x 3360 — the pieces have to climb the same rake the slats do.
 */
 @keyframes kaiten-ride {
   to {
-    transform: translate(1680px, -369.6px);
+    transform: translate(3360px, -739.2px);
   }
 }
 
 @keyframes kaiten-ride-cast {
   to {
-    transform: translateX(1680px);
+    transform: translateX(3360px);
   }
 }
 
 .kaiten-ride {
-  animation: kaiten-ride 33.6s linear infinite;
-  will-change: transform;
-}
-
-.kaiten-ride-cast {
-  animation: kaiten-ride-cast 33.6s linear infinite;
+  animation: kaiten-ride 67.2s linear infinite;
   will-change: transform;
 }
 
 /*
-  A piece of sushi is a control. It is also moving, so the usual affordances
+  The second animation is the opening: the shadows arriving under the service
+  as it is laid on. It is on the group rather than on each ellipse because
+  the group is what carries the blur — a filter re-runs whenever its input
+  changes, so twenty-six ellipses fading in separately is twenty-six
+  Gaussians per frame, where a fade on the filtered result is free. It costs the
+  shadows their stagger, and a soft dark blob under a cat is not where anyone
+  is looking during the beat it would have bought.
+*/
+.kaiten-ride-cast {
+  animation:
+    kaiten-ride-cast 67.2s linear infinite,
+    kaiten-fade 900ms ease-out 620ms backwards;
+  will-change: transform;
+}
+
+/*
+  The rim.
+
+  The cats are black and the belt is sumi, so a cat's contour is worth about a
+  value step against the surface it walks on, and the far half of one went
+  missing into it. This puts the print's own paper back round the silhouette:
+  the alpha dilated by two belt units, flooded, and laid behind the piece — one
+  filter pass, declared in components/kaiten-belt.
+
+  It was a single offset copy instead, on the side the light comes from, on the
+  theory that a rim light is more of a piece with a painted scene than a border
+  is. On the page it read as exactly what it was, a shadow thrown the wrong
+  way, and the cats looked smeared. A border round the whole animal reads as
+  the cut edge of something printed, which is what these are.
+
+  paper-deep rather than paper: a rim in the page's own stock is what the
+  keyed-out artwork already sits on, and at this width it glowed. Opacity is
+  the switch — at 0 there is no rim, and nothing else has to change.
+*/
+.kaiten-rim {
+  flood-color: var(--color-paper-deep);
+  flood-opacity: 1;
+}
+
+/*
+  A cat carrying sushi is a control. It is also moving, so the usual affordances
   have to survive being under a CSS transform: the lift is a translate on the
   <image> itself, which composes with the row's transform on its parent rather
   than fighting it, and the focus ring is drawn by outline, which follows the
@@ -272,6 +307,93 @@ html {
   }
 
   .kaiten-tally {
+    animation: none;
+  }
+}
+
+/*
+  開店 — the opening.
+
+  The route is 回転, the turning. This is the other kaiten, the one a shop
+  does at eleven in the morning, and it is the same word said out loud. The
+  beats are in lib/kaiten-opening.ts, which is where anything that has to
+  agree with them reads them from; the durations and the distances are here,
+  because they are the drawing.
+
+  Every keyframe below declares only `from`, and every rule fills
+  `backwards` — the same contract the packing sequence keeps, for the same
+  reason. The resting state in the cascade IS the finished state, so a
+  visitor who has asked for reduced motion is handed the open counter
+  without having watched it open, and nothing is left invisible if an
+  animation never runs.
+
+  The easing is the exponential-out used throughout the route. The counter is
+  being set by a pair of hands, and hands cover most of the distance at once
+  and then take their time over the last of it.
+*/
+
+/*
+  The machine does not drop onto the page — it is pushed into place across
+  itself.
+
+  90 units along W, the across-the-belt vector, which lib/kaiten-projection
+  puts on the page at (0.60, 0.72) per unit: (-54, -64.8). The direction is
+  the whole of the idea. A band that runs out of both sides of the frame can
+  be moved any distance at all along its own axis and nothing will have
+  happened on screen; across itself is the only direction that reads, and it
+  is also the direction a counter is actually assembled in — the belt slid in
+  from the back of the shop and set down toward the room.
+*/
+@keyframes kaiten-open {
+  from {
+    transform: translate(-54px, -64.8px);
+    opacity: 0;
+  }
+}
+
+/* A piece is put down onto a belt from above, by hand, one at a time. Short,
+   because eight of them overlap and a long fall would read as raining
+   sushi. */
+@keyframes kaiten-lay {
+  from {
+    transform: translateY(-34px);
+    opacity: 0;
+  }
+}
+
+/* The page's own furniture, which is paper rather than machinery and arrives
+   like paper: a few pixels, and no distance to speak of. */
+@keyframes kaiten-rise {
+  from {
+    transform: translateY(9px);
+    opacity: 0;
+  }
+}
+
+/* The lamp over the counter, and the shadows under the service, both of
+   which are only ever a fade — see kaiten-fade further down, which the
+   packing veil already needed and which is exactly this. */
+.kaiten-lamp {
+  animation: kaiten-fade 1000ms ease-out backwards;
+}
+
+.kaiten-open {
+  animation: kaiten-open 900ms cubic-bezier(0.16, 1, 0.3, 1) 100ms backwards;
+}
+
+.kaiten-lay {
+  animation: kaiten-lay 620ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.kaiten-rise {
+  animation: kaiten-rise 620ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kaiten-lamp,
+  .kaiten-open,
+  .kaiten-lay,
+  .kaiten-rise {
     animation: none;
   }
 }

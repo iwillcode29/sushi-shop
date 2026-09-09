@@ -3,9 +3,9 @@ import { KAITEN_PIECES } from '@/lib/kaiten-pieces'
 import { SUSHI_MENU } from '@/lib/sushi-menu'
 
 describe('KAITEN_PIECES', () => {
-  it('carries the eight pieces the belt loop is built on', () => {
-    expect(KAITEN_PIECES).toHaveLength(8)
-    expect(new Set(KAITEN_PIECES.map((p) => p.id)).size).toBe(8)
+  it('carries the sixteen pieces the belt loop is built on', () => {
+    expect(KAITEN_PIECES).toHaveLength(16)
+    expect(new Set(KAITEN_PIECES.map((p) => p.id)).size).toBe(16)
   })
 
   it('prices every piece in whole yen', () => {

@@ -82,7 +82,7 @@ describe('KaitenOrder at the till', () => {
   it('packs what was taken into the box', async () => {
     const user = userEvent.setup()
     render(<KaitenOrder />)
-    await user.click(onBelt('maguro'))
+    await user.click(onBelt('akami'))
     await user.click(onBelt('ikura'))
     await openBill(user)
 
@@ -109,7 +109,7 @@ describe('KaitenOrder at the till', () => {
   it('closes the belt down while the order is being packed', async () => {
     const user = userEvent.setup()
     render(<KaitenOrder />)
-    await user.click(onBelt('ebi'))
+    await user.click(onBelt('unagi'))
     await openBill(user)
 
     await settle(user)
@@ -144,9 +144,9 @@ describe('KaitenOrder in flight', () => {
     const user = userEvent.setup()
     render(<KaitenOrder />)
 
-    await user.click(onBelt('maguro'))
+    await user.click(onBelt('akami'))
 
-    expect(document.querySelector('img[src="/sushi/maguro.webp"]')).toBeInTheDocument()
+    expect(document.querySelector('img[src="/sushi/akami.webp"]')).toBeInTheDocument()
   })
 
   // The flight's promise rejects when it is cancelled, and cleanup cancels —
@@ -158,12 +158,12 @@ describe('KaitenOrder in flight', () => {
     const user = userEvent.setup()
     render(<KaitenOrder />)
 
-    await user.click(onBelt('maguro'))
+    await user.click(onBelt('akami'))
     // Inside act, so that any state change the cancellation provokes has
     // actually been flushed by the time this asserts nothing changed.
     await act(async () => flights[0].cancel())
 
-    expect(document.querySelector('img[src="/sushi/maguro.webp"]')).toBeInTheDocument()
+    expect(document.querySelector('img[src="/sushi/akami.webp"]')).toBeInTheDocument()
   })
 
   it('clears the piece away once it lands', async () => {
@@ -171,10 +171,10 @@ describe('KaitenOrder in flight', () => {
     const user = userEvent.setup()
     render(<KaitenOrder />)
 
-    await user.click(onBelt('maguro'))
+    await user.click(onBelt('akami'))
     await act(async () => flights[0].finish())
 
-    expect(document.querySelector('img[src="/sushi/maguro.webp"]')).not.toBeInTheDocument()
+    expect(document.querySelector('img[src="/sushi/akami.webp"]')).not.toBeInTheDocument()
   })
 })
 
@@ -204,7 +204,7 @@ describe('KaitenOrder', () => {
     render(<KaitenOrder />)
     const before = screen.getAllByRole('button', { name: /take the/i }).length
 
-    await user.click(onBelt('maguro'))
+    await user.click(onBelt('akami'))
 
     expect(screen.getByRole('button', { name: /order/i })).toHaveTextContent('1')
     expect(screen.getAllByRole('button', { name: /take the/i })).toHaveLength(before - 1)
@@ -213,13 +213,13 @@ describe('KaitenOrder', () => {
   it('takes the piece that was clicked, not one of its twins', async () => {
     const user = userEvent.setup()
     render(<KaitenOrder />)
-    const taken = onBelt('maguro')
+    const taken = onBelt('akami')
 
     await user.click(taken)
 
     // The row carries the sequence more than once over, so the other Maguro
     // slots have to still be there.
-    expect(screen.getAllByRole('button', { name: /maguro/i }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('button', { name: /akami/i }).length).toBeGreaterThan(0)
   })
 
   it('bills the piece at the price on its label', async () => {
@@ -262,7 +262,7 @@ describe('KaitenOrder', () => {
   it('puts the bill away again', async () => {
     const user = userEvent.setup()
     render(<KaitenOrder />)
-    await user.click(onBelt('ebi'))
+    await user.click(onBelt('unagi'))
 
     await openBill(user)
     await user.click(screen.getByRole('button', { name: /close/i }))

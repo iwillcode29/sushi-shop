@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { KAITEN_GEOMETRY, KaitenBelt } from '@/components/kaiten-belt'
 import { KaitenPacking } from '@/components/kaiten-packing'
 import { addToCart, type Cart, cartCount, cartLines, cartTotal } from '@/lib/cart'
-import { haltBelt, resumeBelt } from '@/lib/kaiten-halt'
+import { haltBelt, startBelt } from '@/lib/kaiten-drive'
+import { chromeDelay, OPENING } from '@/lib/kaiten-opening'
 import { pieceAt } from '@/lib/kaiten-pieces'
 import { restockDelay } from '@/lib/kaiten-restock'
 import { formatYen } from '@/lib/sushi-menu'
@@ -53,11 +54,35 @@ export function KaitenOrder() {
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
   const nextFlight = useRef(0)
   const reduced = usePrefersReducedMotion()
+  /** Abandons whichever spin-up is in flight; see lib/kaiten-drive. */
+  const drive = useRef<(() => void) | null>(null)
+
+  const spin = useCallback((delay: number) => {
+    drive.current?.()
+    drive.current = startBelt(scene.current, delay)
+  }, [])
 
   useEffect(() => {
     const pending = timers.current
     return () => pending.forEach(clearTimeout)
   }, [])
+
+  /*
+    The switch, thrown once the counter has been laid out.
+
+    The belt is stopped from the moment this runs rather than from the moment
+    the ramp begins — that is the whole of the effect, and it is why the wait
+    belongs to startBelt and not to a timer here. What the visitor sees for
+    the first second is a machine standing still with its service on it, which
+    is what a shop looks like at 10:59.
+  */
+  useEffect(() => {
+    spin(OPENING.drive)
+    return () => {
+      drive.current?.()
+      drive.current = null
+    }
+  }, [spin])
 
   // The bill is not modal — the belt keeps moving behind it and pieces can
   // still be taken while it is up — but Escape is what closes a thing that is
@@ -125,16 +150,24 @@ export function KaitenOrder() {
   const settle = useCallback(async () => {
     setBillOpen(false)
     setStage('stopping')
+    // Nothing may be riding the dial up while the coast-down rides it back.
+    drive.current?.()
     await haltBelt(scene.current)
     setStage('packed')
   }, [])
 
+  /*
+    Back to the belt, and the belt starts the way it started the first time:
+    a counter that came to rest in front of you does not get to jump back to
+    speed between frames. No delay this time — the machine is already there
+    and the service is already on it, so there is nothing left to wait for.
+  */
   const again = useCallback(() => {
     setStage('belt')
     setCart([])
     setTaken(new Set())
-    resumeBelt(scene.current)
-  }, [])
+    spin(0)
+  }, [spin])
 
   return (
     <>
@@ -155,7 +188,8 @@ export function KaitenOrder() {
         onClick={() => setBillOpen((open) => !open)}
         aria-expanded={billOpen}
         hidden={stage !== 'belt'}
-        className="border-sumi/15 bg-paper-lit/85 text-sumi hover:border-sumi/30 absolute top-5 right-5 z-20 flex items-center gap-2.5 rounded-full border py-2 pr-4 pl-3.5 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur-sm transition-colors"
+        style={{ animationDelay: `${chromeDelay(1)}s` }}
+        className="kaiten-rise border-sumi/15 bg-paper-lit/85 text-sumi hover:border-sumi/30 absolute top-5 right-5 z-20 flex items-center gap-2.5 rounded-full border py-2 pr-4 pl-3.5 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur-sm transition-colors"
       >
         <BasketMark />
         <span className="font-sans text-[0.6rem] tracking-[0.3em] uppercase">Order</span>
@@ -366,11 +400,24 @@ function Flight({
       alt=""
       aria-hidden="true"
       className="pointer-events-none fixed z-30"
+      /*
+        The filter is the belt's own, by fragment, and it is set here rather
+        than in a class because a url() in a stylesheet resolves against the
+        document in some browsers and against the stylesheet in others. The
+        belt is on screen for as long as this element exists, so the def is
+        there to be found; if it ever were not, the piece flies without its
+        rim rather than not at all.
+
+        On an HTML element the dilation is two CSS pixels rather than two belt
+        units, which at the scale the frame is drawn is a fifth of a pixel out
+        — and this copy is in the air for six hundred milliseconds.
+      */
       style={{
         left: flight.from.left,
         top: flight.from.top,
         width: flight.from.width,
         height: flight.from.height,
+        filter: 'url(#kaiten-rim)',
       }}
     />
   )

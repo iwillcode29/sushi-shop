@@ -1,5 +1,7 @@
 'use client'
 
+import { KaitenRim } from '@/components/kaiten-rim'
+import { layDelay } from '@/lib/kaiten-opening'
 import { KAITEN_PIECES, pieceAt } from '@/lib/kaiten-pieces'
 import {
   BELT_W,
@@ -62,18 +64,23 @@ const ROLLER_PITCH = 230
 const RIDE_PITCH = PITCH * 1.5
 
 /**
- * How tall a piece stands on a belt 240 units across — which is 225 page px
- * from rail to rail, so a nigiri comes out half the width of the belt. It
- * was 112, at which a single piece of tuna spanned the belt end to end and
- * the thing under it stopped reading as a conveyor.
+ * How tall a cat stands on a belt 240 units across — which is 225 page px from
+ * rail to rail, so one comes out about 158 long, some seventy per cent of the
+ * way across the belt it is walking along, and tall enough to cross the far
+ * rail and stand in front of it. It was 78, the height a set of drawn sushi
+ * had sat at, and cats at that size read as a pattern printed on the belt
+ * rather than as animals riding it.
+ *
+ * There is room above this — a piece is 158 long against slots 210 apart — but
+ * not much: past about 130 the cats start treading on each other's tails.
  */
-const RIDE_H = 78
+const RIDE_H = 112
 
 /*
   The seam.
 
-  The pieces cannot ride inside the sheared group — a nigiri put through the
-  belt matrix is a nigiri lying on its side — so they are positioned in page
+  The pieces cannot ride inside the sheared group — a cat put through the
+  belt matrix is a cat lying on its side — so they are positioned in page
   space instead, at the projection of the belt's centre line:
 
     belt (x, 120)  ->  page (x + 72, -0.22x + 511.4)   [onBelt]
@@ -81,12 +88,12 @@ const RIDE_H = 78
   and travelled along the same T the slats use, at the same rate, so they sit
   still relative to the surface under them.
 
-  The loop moves them exactly eight slots and starts over. Eight, not one:
+  The loop moves them exactly sixteen slots and starts over. Sixteen, not one:
   after a jump of one slot every piece would land where its neighbour was, and
-  the row would reshuffle in a single frame. After eight, slot j is handed the
-  piece from slot j-8, and j-8 and j are the same piece — the sequence is
-  eight long. Which is also why the strip has to be seeded eight slots to the
-  left of the first one that can be seen.
+  the row would reshuffle in a single frame. After sixteen, slot j is handed
+  the piece from slot j-16, and j-16 and j are the same piece — the sequence is
+  sixteen long. Which is also why the strip has to be seeded sixteen slots to
+  the left of the first one that can be seen.
 */
 /** Slots past the left edge of the frame that can still be seen. */
 const RIDE_HEAD = Math.ceil(FRAME_W / RIDE_PITCH) + 1
@@ -113,7 +120,7 @@ export const KAITEN_GEOMETRY = {
   slatPitch: PITCH,
   /** One piece to the next. */
   ridePitch: RIDE_PITCH,
-  /** Eight slots; the distance the pieces loop travels. */
+  /** Sixteen slots; the distance the pieces loop travels. */
   rideLoop: RIDE_PITCH * KAITEN_PIECES.length,
   /** How far that leg climbs, in page pixels. */
   rideRise: -RISE * RIDE_PITCH * KAITEN_PIECES.length,
@@ -152,14 +159,14 @@ export function KaitenBelt({ className, taken, onTake, rideRef }: KaitenBeltProp
         `img` only while there is nothing here to press.
 
         A role of `img` makes everything inside the element presentational, so
-        with pieces that are buttons it collapses eighteen controls into one
+        with pieces that are buttons it collapses twenty-six controls into one
         picture — the browser's accessibility tree returned a single node for
         the whole belt. jsdom does not apply that rule, so the tests went on
         finding buttons that a screen reader could not; it took the real tree
         to see it.
       */
       role={onTake ? 'group' : 'img'}
-      aria-label="A kaiten conveyor belt carrying sushi — tuna, rolls, salmon, ikura, prawn, egg — from the bottom left of the frame to the top right"
+      aria-label="A kaiten conveyor belt of black cats padding along it, each carrying a piece of sushi on its back — salmon, tuna, egg, ikura, eel, scallop — from the bottom left of the frame to the top right"
     >
       <defs>
         {/*
@@ -206,6 +213,9 @@ export function KaitenBelt({ className, taken, onTake, rideRef }: KaitenBeltProp
           <feGaussianBlur stdDeviation="6" />
         </filter>
 
+        {/* The paper edge round every rider — see components/kaiten-rim. */}
+        <KaitenRim id="kaiten-rim" />
+
         <clipPath id="kaiten-face">
           <rect x={X_MIN} y="0" width={X_MAX - X_MIN} height={BELT_W} />
         </clipPath>
@@ -214,158 +224,175 @@ export function KaitenBelt({ className, taken, onTake, rideRef }: KaitenBeltProp
       {/* Larger than the frame on purpose: at 780x430 the gradient reached zero
           inside the viewBox and the terminator showed as a faint ring banded
           across the paper. */}
-      <ellipse cx="700" cy="370" rx="1120" ry="640" fill="url(#kaiten-pool)" />
-
-      {/* Contact shadow: a band off the foot of the near side, nothing more.
-          The light is over the far shoulder, so the far edge casts nothing. */}
-      <polygon
-        points={[
-          [-700, -RISE * -700 + NEAR_Y + SIDE_H],
-          [2300, -RISE * 2300 + NEAR_Y + SIDE_H],
-          [2336, -RISE * 2300 + NEAR_Y + SIDE_H + 43],
-          [-664, -RISE * -700 + NEAR_Y + SIDE_H + 43],
-        ]
-          .map(([x, y]) => `${x},${y}`)
-          .join(' ')}
-        fill="var(--color-sumi)"
-        opacity="0.14"
-        filter="url(#kaiten-contact)"
+      {/* The lamp over the counter, and the first thing the opening does.
+          See 開店 in app/globals.css. */}
+      <ellipse
+        className="kaiten-lamp"
+        cx="700"
+        cy="370"
+        rx="1120"
+        ry="640"
+        fill="url(#kaiten-pool)"
       />
 
-      <g transform={BELT}>
-        <rect x={X_MIN} y="0" width={X_MAX - X_MIN} height={BELT_W} fill="url(#kaiten-surface)" />
-
-        {/* The moving part of the whole picture. Clipped to the surface so a
-            slat that has travelled past the end is cut off by the belt rather
-            than by the frame. */}
-        <g clipPath="url(#kaiten-face)">
-          <g className="kaiten-travel">
-            {slats.map((x) => (
-              <g key={x}>
-                <rect x={x} y="0" width="16" height={BELT_W} fill="var(--color-sumi)" />
-                {/* The lit lip of the next plank — a hairline, and no more.
-                    At 5px and 0.26 it out-contrasted the gap it sits beside,
-                    and the belt read as light stripes painted on dark rather
-                    than as boards with daylight between them. */}
-                <rect
-                  x={x + 16}
-                  y="0"
-                  width="3"
-                  height={BELT_W}
-                  fill="var(--color-paper-deep)"
-                  opacity="0.14"
-                />
-              </g>
-            ))}
-          </g>
-        </g>
-
-        {/*
-          Rails, over the slats: the belt's own long edges are continuous, so
-          they cannot be part of the strip that moves.
-
-          Both are solid. The far rail was a paper-deep rect at 0.34 alpha,
-          which over a surface that is itself a gradient came out as a haze
-          with the slats faintly legible through it — the belt looked as
-          though something had been smudged along its top edge. Mixed rather
-          than faded, it is a piece of metal.
-        */}
-        <rect
-          x={X_MIN}
-          y="0"
-          width={X_MAX - X_MIN}
-          height="16"
-          fill="color-mix(in oklab, var(--color-paper-deep) 38%, var(--color-sumi-soft))"
-        />
-        <rect x={X_MIN} y="16" width={X_MAX - X_MIN} height="3" fill="var(--color-sumi)" />
-        <rect
-          x={X_MIN}
-          y={BELT_W - 16}
-          width={X_MAX - X_MIN}
-          height="16"
+      {/*
+        The machine: everything the belt is made of, and nothing that is put
+        on it. One group so that the opening moves it as one object — the
+        surface, the side it hangs off and the shadow it throws are the same
+        thing arriving, and any of them arriving separately would come apart.
+      */}
+      <g className="kaiten-open">
+        {/* Contact shadow: a band off the foot of the near side, nothing more.
+            The light is over the far shoulder, so the far edge casts nothing. */}
+        <polygon
+          points={[
+            [-700, -RISE * -700 + NEAR_Y + SIDE_H],
+            [2300, -RISE * 2300 + NEAR_Y + SIDE_H],
+            [2336, -RISE * 2300 + NEAR_Y + SIDE_H + 43],
+            [-664, -RISE * -700 + NEAR_Y + SIDE_H + 43],
+          ]
+            .map(([x, y]) => `${x},${y}`)
+            .join(' ')}
           fill="var(--color-sumi)"
+          opacity="0.14"
+          filter="url(#kaiten-contact)"
         />
 
-        {/*
-          What each piece puts back on the belt. Drawn in belt space, which is
-          the whole reason they are separated from the pieces themselves: an
-          axis-aligned ellipse here is a correctly raked ellipse once the
-          group above is applied.
+        <g transform={BELT}>
+          <rect x={X_MIN} y="0" width={X_MAX - X_MIN} height={BELT_W} fill="url(#kaiten-surface)" />
 
-          Sized to its piece and pushed toward the viewer, because the light
-          is over the far shoulder. A single 46-unit disc centred under
-          everything was invisible — a nigiri is wider than that, and covered
-          its own shadow completely.
-        */}
-        <g className="kaiten-ride-cast" filter="url(#kaiten-cast)">
-          {riders.map((i) =>
-            taken?.has(i) ? null : (
-              <ellipse
-                key={i}
-                cx={i * RIDE_PITCH}
-                cy={BELT_W / 2 + 14}
-                rx={rideWidth(pieceAt(i)) / 2.3}
-                ry="24"
-                fill="var(--color-sumi)"
-                opacity="0.62"
-              />
-            ),
-          )}
-        </g>
-      </g>
-
-      <g transform={SIDE}>
-        <rect x={X_MIN} y="0" width={X_MAX - X_MIN} height={SIDE_H} fill="var(--color-sumi)" />
-        <rect
-          x={X_MIN}
-          y="0"
-          width={X_MAX - X_MIN}
-          height="4"
-          fill="var(--color-paper-deep)"
-          opacity="0.22"
-        />
-
-        {rollers.map((s) => (
-          <g key={s} transform={`translate(${s}, ${SIDE_H / 2})`}>
-            {/*
-              Mixed down into the side rather than set in paper-deep flat: at
-              full paper the ends read as pale screw heads bolted onto the
-              front of the belt instead of as the ends of rollers inside it.
-            */}
-            <circle
-              r={ROLLER_R}
-              fill="color-mix(in oklab, var(--color-paper-deep) 24%, var(--color-sumi))"
-              stroke="color-mix(in oklab, var(--color-paper-deep) 46%, var(--color-sumi-soft))"
-              strokeWidth="4"
-            />
-            {/*
-              Every shape in here is centred on the roller's axis, which is
-              what makes `transform-box: fill-box; transform-origin: center`
-              land on the axis — an off-centre bearing mark would wobble.
-            */}
-            <g className="kaiten-roll">
-              <line
-                x1="0"
-                y1="-16"
-                x2="0"
-                y2="16"
-                stroke="var(--color-salmon-deep)"
-                strokeWidth="6"
-                strokeLinecap="round"
-              />
-              <line
-                x1="-10"
-                y1="0"
-                x2="10"
-                y2="0"
-                stroke="color-mix(in oklab, var(--color-paper-deep) 40%, var(--color-sumi-soft))"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <circle r="6" fill="var(--color-sumi)" />
+          {/* The moving part of the whole picture. Clipped to the surface so a
+              slat that has travelled past the end is cut off by the belt rather
+              than by the frame. */}
+          <g clipPath="url(#kaiten-face)">
+            <g className="kaiten-travel">
+              {slats.map((x) => (
+                <g key={x}>
+                  <rect x={x} y="0" width="16" height={BELT_W} fill="var(--color-sumi)" />
+                  {/* The lit lip of the next plank — a hairline, and no more.
+                      At 5px and 0.26 it out-contrasted the gap it sits beside,
+                      and the belt read as light stripes painted on dark rather
+                      than as boards with daylight between them. */}
+                  <rect
+                    x={x + 16}
+                    y="0"
+                    width="3"
+                    height={BELT_W}
+                    fill="var(--color-paper-deep)"
+                    opacity="0.14"
+                  />
+                </g>
+              ))}
             </g>
           </g>
-        ))}
+
+          {/*
+            Rails, over the slats: the belt's own long edges are continuous, so
+            they cannot be part of the strip that moves.
+
+            Both are solid. The far rail was a paper-deep rect at 0.34 alpha,
+            which over a surface that is itself a gradient came out as a haze
+            with the slats faintly legible through it — the belt looked as
+            though something had been smudged along its top edge. Mixed rather
+            than faded, it is a piece of metal.
+          */}
+          <rect
+            x={X_MIN}
+            y="0"
+            width={X_MAX - X_MIN}
+            height="16"
+            fill="color-mix(in oklab, var(--color-paper-deep) 38%, var(--color-sumi-soft))"
+          />
+          <rect x={X_MIN} y="16" width={X_MAX - X_MIN} height="3" fill="var(--color-sumi)" />
+          <rect
+            x={X_MIN}
+            y={BELT_W - 16}
+            width={X_MAX - X_MIN}
+            height="16"
+            fill="var(--color-sumi)"
+          />
+
+          {/*
+            What each piece puts back on the belt. Drawn in belt space, which is
+            the whole reason they are separated from the pieces themselves: an
+            axis-aligned ellipse here is a correctly raked ellipse once the
+            group above is applied.
+
+            Sized to its piece and pushed toward the viewer, because the light
+            is over the far shoulder. A single 46-unit disc centred under
+            everything was invisible — a cat is wider than that, and covered
+            its own shadow completely.
+          */}
+          <g className="kaiten-ride-cast" filter="url(#kaiten-cast)">
+            {riders.map((i) =>
+              taken?.has(i) ? null : (
+                <ellipse
+                  key={i}
+                  cx={i * RIDE_PITCH}
+                  cy={BELT_W / 2 + 14}
+                  rx={rideWidth(pieceAt(i)) / 2.3}
+                  ry="24"
+                  fill="var(--color-sumi)"
+                  opacity="0.62"
+                />
+              ),
+            )}
+          </g>
+        </g>
+
+        <g transform={SIDE}>
+          <rect x={X_MIN} y="0" width={X_MAX - X_MIN} height={SIDE_H} fill="var(--color-sumi)" />
+          <rect
+            x={X_MIN}
+            y="0"
+            width={X_MAX - X_MIN}
+            height="4"
+            fill="var(--color-paper-deep)"
+            opacity="0.22"
+          />
+
+          {rollers.map((s) => (
+            <g key={s} transform={`translate(${s}, ${SIDE_H / 2})`}>
+              {/*
+                Mixed down into the side rather than set in paper-deep flat: at
+                full paper the ends read as pale screw heads bolted onto the
+                front of the belt instead of as the ends of rollers inside it.
+              */}
+              <circle
+                r={ROLLER_R}
+                fill="color-mix(in oklab, var(--color-paper-deep) 24%, var(--color-sumi))"
+                stroke="color-mix(in oklab, var(--color-paper-deep) 46%, var(--color-sumi-soft))"
+                strokeWidth="4"
+              />
+              {/*
+                Every shape in here is centred on the roller's axis, which is
+                what makes `transform-box: fill-box; transform-origin: center`
+                land on the axis — an off-centre bearing mark would wobble.
+              */}
+              <g className="kaiten-roll">
+                <line
+                  x1="0"
+                  y1="-16"
+                  x2="0"
+                  y2="16"
+                  stroke="var(--color-salmon-deep)"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1="-10"
+                  y1="0"
+                  x2="10"
+                  y2="0"
+                  stroke="color-mix(in oklab, var(--color-paper-deep) 40%, var(--color-sumi-soft))"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+                <circle r="6" fill="var(--color-sumi)" />
+              </g>
+            </g>
+          ))}
+        </g>
       </g>
 
       <g className="kaiten-ride" ref={rideRef}>
@@ -391,16 +418,22 @@ export function KaitenBelt({ className, taken, onTake, rideRef }: KaitenBeltProp
                 Every piece on the strip is its own control, including the ones
                 currently off the sides of the frame — the row is moved by CSS,
                 so which of them is visible is not something this markup knows.
-                A keyboard reaches all eighteen; a taken one leaves the DOM, so
+                A keyboard reaches all twenty-six; a taken one leaves the DOM, so
                 it stops being reachable at the moment it stops being there.
               */
               role={onTake ? 'button' : undefined}
               tabIndex={onTake ? 0 : undefined}
               aria-label={onTake ? label : undefined}
-              className={onTake ? 'kaiten-piece' : undefined}
+              filter="url(#kaiten-rim)"
+              className={onTake ? 'kaiten-piece kaiten-lay' : 'kaiten-lay'}
+              /* Laid down one at a time, downstream. The stagger is by slot
+                 rather than by index into the strip, because the strip is
+                 seeded a whole sequence to the left of anything the frame can
+                 show and those pieces have nobody watching them land. */
+              style={{ animationDelay: `${layDelay(i)}s` }}
               /*
                 A mouse press moves focus onto the piece, and on desktop that
-                leaves a focus ring boxed around a nigiri — Chrome's own, or
+                leaves a focus ring boxed around a cat — Chrome's own, or
                 the platform's focused-object highlight, neither of which any
                 stylesheet here can quiet down. Refusing the default keeps
                 focus where it was; Tab is unaffected, and a piece that is
