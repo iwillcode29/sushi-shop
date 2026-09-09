@@ -12,7 +12,7 @@ afterEach(() => {
 
 describe('ModelErrorBoundary', () => {
   // The default poster is the home page's: cream, and headed "Handcrafted in
-  // WebGL". On the dark /menu route that is the wrong colour and the wrong
+  // WebGL". On the dark home route that is the wrong colour and the wrong
   // words, so a caller has to be able to supply its own.
   it('renders a fallback of the caller\'s choosing', () => {
     render(

@@ -6,7 +6,7 @@ import { SushiShowcase } from '@/components/ui/sushi-showcase'
 import { usePrefersReducedMotion } from '@/lib/use-prefers-reduced-motion'
 
 /**
- * The whole of the /menu route as one continuous scroll: the approach to the
+ * The whole of the home route as one continuous scroll: the approach to the
  * shop, a fade to black, the set on the counter, then the prices.
  *
  * Both animated stages are pinned sections driven by the page's own scroll,

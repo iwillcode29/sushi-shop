@@ -30,7 +30,7 @@
      and 3.9:1 on the band — under AA at the 9px it is set at. The hanko
      artwork keeps its own sampled vermilion; this token is for type. */
   --color-shu: #96351b;
-  /* The /menu route's ground: the same ink, taken down to a lit counter. */
+  /* The home route's ground: the same ink, taken down to a lit counter. */
   --color-counter: #171a10;
 
   --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
@@ -94,11 +94,12 @@ body {
 }
 
 /*
-  The menu route is a dark, full-bleed scroll sequence. Without this the
-  paper colour above shows through the overscroll bounce at both ends of the
-  page, which reads as the layout having come apart. Keyed off a marker on
-  the route's own <main> because only the root layout renders <body>, so a
-  route cannot set a class on it.
+  The menu — the home route — is a dark, full-bleed scroll sequence. Without
+  this the paper colour above shows through the overscroll bounce at both
+  ends of the page, which reads as the layout having come apart. Keyed off a
+  marker on the route's own <main> because only the root layout renders
+  <body>, so a route cannot set a class on it. The marker names the content,
+  not the path.
 */
 body:has([data-route="menu"]) {
   background-color: var(--color-counter);
@@ -126,10 +127,6 @@ body:has([data-route="menu"]) {
 .stamp {
   rotate: -4deg;
 }
-.stamp-alt {
-  rotate: 3.5deg;
-}
-
 html {
   scroll-behavior: smooth;
 }

@@ -15,7 +15,7 @@ describe('KAITEN_PIECES', () => {
     }
   })
 
-  // The same neta cannot cost one thing on /menu and another on the belt.
+  // The same neta cannot cost one thing on the menu and another on the belt.
   it('charges what the menu charges for the neta the two share', () => {
     for (const piece of KAITEN_PIECES) {
       const onMenu = SUSHI_MENU.find((item) => item.id === piece.id)

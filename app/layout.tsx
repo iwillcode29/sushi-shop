@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   /* Without this the OG image resolves against localhost, so the card is
      blank everywhere it is actually unfurled. */
   metadataBase: new URL('https://sushi-shop-neon.vercel.app'),
-  title: 'SUSHIMEOW — Handcrafted in WebGL',
+  title: 'SUSHIMEOW — 鮨 ねこもり',
   description:
-    'A low-poly sushi set rendered in the browser with react-three-fiber, shown with its authored unlit materials and with a converted PBR treatment.',
+    'A twelve-seat Edomae counter, rendered in the browser with react-three-fiber. Walk up to the shopfront, see tonight\u2019s set, and read the neta priced in yen.',
 }
 
 export const viewport: Viewport = {
@@ -44,11 +44,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       silently reverts to the platform sans.
     */
     <html lang="en" className={`${fraunces.variable} ${archivo.variable}`}>
-      {/*
-        The GLB preload lives on the home route (components/preload-model),
-        not here: a hint in the root layout fires on every route beneath it,
-        including ones that never mount the canvas.
-      */}
       <body className="antialiased">{children}</body>
     </html>
   )

@@ -16,7 +16,8 @@ import {
   There is a WebGL canvas two routes away, and this is deliberately not it: a
   conveyor seen from a fixed corner is a shear, not a camera, so the whole
   thing is one static SVG with two CSS animations on it. No client component,
-  no hydration, no second three.js scene competing for the same GPU as /menu.
+  no hydration, no second three.js scene competing for the same GPU as the
+  home route.
 
   The projection is an oblique axonometric built from two screen vectors:
 

@@ -17,7 +17,7 @@ import type { LightingMode } from '@/lib/materials'
 export const SHADOW_Y = -0.004
 export const FLOOR_Y = -0.02
 
-/** --color-paper: the washi every route but /menu sits on. */
+/** --color-paper: the washi every route but the home counter sits on. */
 export const SHELL_FOG = '#e4d2b8'
 export const SHELL_FLOOR = '#7f6a4c'
 

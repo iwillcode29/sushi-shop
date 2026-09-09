@@ -23,7 +23,7 @@ export interface KaitenPiece {
  * that is the length the belt's loop is built on — see components/kaiten-belt.
  *
  * Where a piece is also on the counter's own list, it is priced from there:
- * the same neta cannot cost one thing on /menu and another on the belt.
+ * the same neta cannot cost one thing on the menu and another on the belt.
  */
 export const KAITEN_PIECES: KaitenPiece[] = [
   { id: 'maguro', name: 'Maguro', nameJa: 'マグロ', price: 380, w: 512, h: 354 },

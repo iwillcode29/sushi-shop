@@ -1,10 +1,9 @@
 # SUSHIMEOW（鮨 ねこもり）— sushi shop
 
-A three-route demo. `/` presents a low-poly sushi set as glTF, rendered with
-react-three-fiber and shown both with its authored unlit materials and with a
-converted PBR treatment. `/menu` is a scroll-driven sequence: an approach to
-the shopfront, the set on the counter, then the prices. `/kaiten` is a belt
-you can take sushi off, and a till that packs what you took into a box.
+A two-route demo. `/` is a scroll-driven sequence: an approach to the
+shopfront, a low-poly sushi set as glTF on the counter — rendered with
+react-three-fiber — then the prices. `/kaiten` is a belt you can take sushi
+off, and a till that packs what you took into a box.
 
 ## Getting started
 
@@ -26,7 +25,7 @@ and every asset 404'd in spirit while returning 200. See `.gitattributes`.
 | `npm run lint` | eslint |
 | `npm run build` | production build |
 
-## How /menu works
+## How the home route works
 
 The whole route is one continuous page scroll. Both animated stages are
 `position: sticky` sections whose progress is read from `getBoundingClientRect`
@@ -113,7 +112,7 @@ into transparent WebP, so it sits on the page without an edge; the page ground
 is the same washi, with the fibre drawn by an SVG turbulence tile rather than
 shipped as a raster.
 
-`/menu` is the same brand on a dark ground: the counter is that sumi taken
+The home route is the same brand on a dark ground: the counter is that sumi taken
 down rather than a neutral near-black, the fibre is re-emitted as paper
 (`.washi-lit`) since sumi speckle over near-black is nothing at all, and the
 wordmark is a reversed print — `sushimeow-wordmark-paper.webp` is the same
