@@ -8,7 +8,7 @@ import { haltBelt, startBelt } from '@/lib/kaiten-drive'
 import { chromeDelay, OPENING } from '@/lib/kaiten-opening'
 import { pieceAt } from '@/lib/kaiten-pieces'
 import { restockDelay } from '@/lib/kaiten-restock'
-import { formatYen } from '@/lib/sushi-menu'
+import { formatYen } from '@/lib/yen'
 import { usePrefersReducedMotion } from '@/lib/use-prefers-reduced-motion'
 
 /** A piece in the air between the belt and the basket. */

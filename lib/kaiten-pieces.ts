@@ -21,14 +21,16 @@ export interface KaitenPiece {
  * The sixteen, in the order they come past — the order they sit on the sheet
  * they were cut from, four rows of four, read left to right.
  *
+ * Also the counter's own list: components/menu-card renders these same
+ * sixteen as お品書き on the home route. One array, so a neta cannot cost one
+ * thing on the menu and another on the belt, and so the artwork the belt
+ * carries is the artwork the price list shows.
+ *
  * Sixteen because that is what the artwork carries, and the belt's loop is
  * built on however many there are: at one and a half slat pitches apart the
  * sequence is 3360 units long against a frame 1400 across, so a visitor sees
  * six or seven of them at a time and waits out a full minute of belt before
  * the first cat comes round again.
- *
- * Where a piece is also on the counter's own list, it is priced from there:
- * the same neta cannot cost one thing on the menu and another on the belt.
  */
 export const KAITEN_PIECES: KaitenPiece[] = [
   { id: 'sake', name: 'Sake', nameJa: 'サーモン', price: 320, w: 251, h: 177 },

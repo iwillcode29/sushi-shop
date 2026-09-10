@@ -1,5 +1,6 @@
 import Image from 'next/image'
-import { formatYen, SUSHI_MENU, type MenuItem } from '@/lib/sushi-menu'
+import { KAITEN_PIECES, type KaitenPiece } from '@/lib/kaiten-pieces'
+import { formatYen } from '@/lib/yen'
 
 /**
  * The price list, in ordinary page flow below the pinned sections.
@@ -8,17 +9,24 @@ import { formatYen, SUSHI_MENU, type MenuItem } from '@/lib/sushi-menu'
  * reading prices they want to compare them, which means being able to look
  * at two at once and scroll at their own speed rather than having each one
  * handed to them in turn.
+ *
+ * Each neta is shown as the artwork the belt carries — a cat with the piece
+ * on its back — served on a dish. It used to be a two-stop gradient sampled
+ * off the cut of fish, which was standing in for a picture the site already
+ * had. The dish is not decoration: the cats are black and this section is
+ * counter-dark, so paper has to go underneath them somewhere (see
+ * .neta-plate in app/globals.css).
  */
-export function MenuCard({ items = SUSHI_MENU }: { items?: MenuItem[] }) {
+export function MenuCard({ items = KAITEN_PIECES }: { items?: KaitenPiece[] }) {
   return (
     <section
       id="menu"
-      className="bg-counter text-paper-lit washi-lit scroll-mt-16 px-6 pt-24 pb-24 sm:px-10"
+      className="bg-counter text-paper-lit washi-lit counter-pool relative isolate scroll-mt-16 px-6 pt-24 pb-24 sm:px-10"
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="relative mx-auto max-w-3xl">
         <h2 className="font-mincho text-center text-[1.6rem] tracking-[0.32em]">お品書き</h2>
         <p className="text-paper-lit/60 mt-4 text-center font-sans text-[0.6rem] tracking-[0.3em] uppercase">
-          Tonight&rsquo;s counter · prices per piece
+          Sixteen neta · each on its own cat · priced by the piece
         </p>
         {/*
           The hanko under the heading, the way a list of the day is stamped
@@ -35,29 +43,51 @@ export function MenuCard({ items = SUSHI_MENU }: { items?: MenuItem[] }) {
           className="stamp mx-auto mt-7 h-auto w-[1.55rem]"
         />
 
-        <ul className="mt-12 grid gap-x-14 gap-y-1 sm:grid-cols-2">
+        <ul className="mt-14 grid gap-x-12 gap-y-1 sm:grid-cols-2">
           {items.map((item) => (
             <li
               key={item.id}
-              className="border-paper-lit/10 flex items-center gap-3 border-b py-3.5 last:border-b-0 sm:last:border-b"
+              className="border-paper-lit/8 flex items-end gap-4 border-b py-3 last:border-b-0 sm:last:border-b"
             >
-              <span
-                aria-hidden="true"
-                className="size-7 shrink-0 rounded-[7px]"
-                style={{ background: `linear-gradient(135deg, ${item.colorA}, ${item.colorB})` }}
-              />
-              <span className="text-sm font-medium">{item.name}</span>
-              <span className="font-mincho text-paper-lit/60 text-xs">{item.nameJa}</span>
               {/*
-                The leader is decorative rule, not content: it grows to fill
-                whatever gap the two labels leave, which is what carries the
-                eye across to the price on a wide row.
+                The picture carries no information the row does not already
+                give in two scripts and a price, and sixteen readings of "a
+                black cat carrying salmon" is a worse list than none. The
+                joke is put into the standfirst above instead, where every
+                reader gets it once.
               */}
-              <span aria-hidden="true" className="bg-paper-lit/12 h-px flex-1" />
-              {/* The neta's own colour, from the logo. The gold this used to
-                  be belonged to no other part of the brand. */}
-              <span className="text-salmon font-sans text-sm tabular-nums">
-                {formatYen(item.price)}
+              <span aria-hidden="true" className="neta-dish">
+                <span className="neta-plate" />
+                <Image
+                  src={`/sushi/${item.id}.webp`}
+                  alt=""
+                  width={item.w}
+                  height={item.h}
+                  sizes="(max-width: 640px) 60px, 76px"
+                  className="neta-cat"
+                />
+              </span>
+
+              <span className="min-w-0 flex-1 pb-1.5">
+                <span className="flex items-baseline gap-3">
+                  <span className="font-display text-[1.05rem] leading-none font-semibold">
+                    {item.name}
+                  </span>
+                  {/*
+                    The leader is decorative rule, not content: it grows to
+                    fill whatever gap the name and the price leave, which is
+                    what carries the eye across a wide row.
+                  */}
+                  <span aria-hidden="true" className="bg-paper-lit/12 h-px flex-1" />
+                  {/* The neta's own colour, from the logo. The gold this
+                      used to be belonged to no other part of the brand. */}
+                  <span className="text-salmon font-sans text-sm tabular-nums">
+                    {formatYen(item.price)}
+                  </span>
+                </span>
+                <span className="font-mincho text-paper-lit/55 mt-1.5 block text-xs tracking-[0.14em]">
+                  {item.nameJa}
+                </span>
               </span>
             </li>
           ))}

@@ -11,7 +11,7 @@ const SHOP_LINE = 'Edomae · Ginza · twelve seats, one seating a night'
 export const metadata: Metadata = {
   title: '鮨 ねこもり — Sushimeow',
   description:
-    'Walk up to the counter at Sushimeow, see tonight\u2019s set, and read twelve neta priced in yen. Scroll to move through it.',
+    'Walk up to the counter at Sushimeow, see tonight\u2019s set, and read sixteen neta priced in yen. Scroll to move through it.',
 }
 
 /** Overrides the site-wide washi in app/layout.tsx for this dark route. */

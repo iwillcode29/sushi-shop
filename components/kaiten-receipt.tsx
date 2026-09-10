@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useMemo } from 'react'
 import { type CartLine, cartCount } from '@/lib/cart'
-import { formatYen } from '@/lib/sushi-menu'
+import { formatYen } from '@/lib/yen'
 
 /*
   レシート.

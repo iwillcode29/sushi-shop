@@ -572,3 +572,98 @@ html {
   }
 }
 
+
+/*
+  お品書き — the counter's price list.
+
+  Sixteen black cats on a near-black counter would be sixteen holes in the
+  page. The belt answers the same problem with .kaiten-rim, putting the
+  print's own paper round each animal's contour; here the paper is a dish
+  underneath it instead, which is what a list of things you can order should
+  look like anyway.
+
+  The dish is a circle seen from a diner's eye height rather than from
+  overhead — two fifths as deep as it is wide. Flatter and it is a stripe;
+  rounder and the row of them reads as a column of buttons.
+*/
+.neta-dish {
+  --dish-w: clamp(4.75rem, 3vw + 3.6rem, 6rem);
+  position: relative;
+  flex: none;
+  width: var(--dish-w);
+  /* Tall enough for the cat, which stands well clear of the rim: the
+     artwork is about 0.72 as tall as it is wide, drawn at 78% of the dish
+     and stood a little forward of its centre. */
+  height: calc(var(--dish-w) * 0.72);
+}
+
+/*
+  Three box-shadows and no extra element. The two insets are painted in
+  declaration order, front to back, so the wide paper ring on top masks all
+  but a hairline of the vermilion under it — a rim band set in from the edge,
+  the way a dish is banded, rather than a border drawn round a div. The
+  vermilion is the hanko's, the only other place the site uses it.
+*/
+.neta-plate {
+  position: absolute;
+  inset: auto 0 0 0;
+  aspect-ratio: 1 / 0.4;
+  border-radius: 50%;
+  background-color: var(--color-paper);
+  background-image: var(--washi);
+  background-size: 160px 160px;
+  box-shadow:
+    inset 0 0 0 3px var(--color-paper),
+    inset 0 0 0 4px color-mix(in oklab, var(--color-shu) 40%, transparent),
+    0 5px 12px -6px color-mix(in oklab, var(--color-sumi) 85%, transparent);
+}
+
+/*
+  Where the cat meets the dish. Without it the animal floats a few pixels
+  over its own plate — the artwork is keyed out square across the paws, so
+  nothing in it says which part is touching.
+*/
+.neta-plate::after {
+  content: '';
+  position: absolute;
+  top: 56%;
+  left: 50%;
+  width: 58%;
+  height: 34%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--color-sumi) 38%, transparent);
+  filter: blur(3px);
+}
+
+.neta-cat {
+  position: absolute;
+  left: 50%;
+  /* Measured up from the bottom of the dish, so the paws land just forward
+     of its centre line — a piece served towards the diner, not centred on a
+     plate seen from above. */
+  bottom: calc(var(--dish-w) * 0.4 * 0.36);
+  /* Narrower than the dish it stands on, or the dish stops reading as one.
+     At 88% the cat overhung the rim at both ends and the two shapes fought. */
+  width: 78%;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+/*
+  A lamp over the counter. This section is the one part of the route that is
+  read rather than watched, and sixteen dishes on flat near-black read as a
+  sheet of stickers. The pool goes behind them as a layer of its own because
+  .washi-lit already owns the section's background-image.
+*/
+.counter-pool::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    115% 60% at 50% 34%,
+    color-mix(in oklab, var(--color-paper) 10%, transparent),
+    transparent 72%
+  );
+}

@@ -1,6 +1,7 @@
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { KAITEN_PIECES } from '@/lib/kaiten-pieces'
-import { SUSHI_MENU } from '@/lib/sushi-menu'
 
 describe('KAITEN_PIECES', () => {
   it('carries the sixteen pieces the belt loop is built on', () => {
@@ -15,11 +16,12 @@ describe('KAITEN_PIECES', () => {
     }
   })
 
-  // The same neta cannot cost one thing on the menu and another on the belt.
-  it('charges what the menu charges for the neta the two share', () => {
+  // The counter's price list is rendered straight from this array, so a
+  // piece with no artwork is a hole in the list rather than a missing
+  // picture on the belt, where the row would simply not be drawn.
+  it('has artwork on disk for every piece', () => {
     for (const piece of KAITEN_PIECES) {
-      const onMenu = SUSHI_MENU.find((item) => item.id === piece.id)
-      if (onMenu) expect(piece.price).toBe(onMenu.price)
+      expect(existsSync(join(process.cwd(), 'public', 'sushi', `${piece.id}.webp`))).toBe(true)
     }
   })
 
